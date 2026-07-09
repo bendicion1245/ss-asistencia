@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0b1e3d"/>
+<title>AttendX · S&S Control de Asistencia</title>
+
+<!-- ===== PWA: Manifest ===== -->
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUyZTIENvbnRyb2wgZGUgQXNpc3RlbmNpYSIsInNob3J0X25hbWUiOiJBc2lzdGVuY2lhIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwYjFlM2QiLCJ0aGVtZV9jb2xvciI6IiMwYjFlM2QiLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0IiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzU1MTEvNTUxMTQxNC5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIiwicHVycG9zZSI6ImFueSJ9LHsic3JjIjoiaHR0cHM6Ly9jZG4taWNvbnMtcG5nLmZsYXRpY29uLmNvbS81MTIvNTUxMS81NTExNDE0LnBuZyIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9wbmciLCJwdXJwb3NlIjoibWFza2FibGUifV19"/>
+
+<!-- ===== PWA: iOS / Apple ===== -->
+<meta name="apple-mobile-web-app-title" content="Asistencia"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5511/5511414.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="https://cdn-icons-png.flaticon.com/512/5511/5511414.png"/>
+
+<!-- ===== PWA: Android / Chrome ===== -->
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="icon" type="image/png" sizes="512x512" href="https://cdn-icons-png.flaticon.com/512/5511/5511414.png"/>
+<link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/5511/5511414.png"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07142a;--bg2:#0b1e3d;--bg3:#102a52;
+  --blue:#1a6fd4;--blue2:#2589f5;--blue3:#4da3ff;
+  --blue-dim:rgba(26,111,212,.18);--blue-glow:rgba(37,137,245,.35);
+  --red:#e63946;--green:#2dc653;--orange:#f5a623;
+  --text:#dce8fb;--text2:#7a9bbf;
+  --border:rgba(26,111,212,.35);--card:rgba(11,30,61,.9);
+  --radius:16px;--shadow:0 8px 32px rgba(0,0,0,.5);
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);
+  display:flex;justify-content:center;
+  background-image:radial-gradient(ellipse at 20% 10%,rgba(26,111,212,.12) 0%,transparent 60%),
+                   radial-gradient(ellipse at 80% 90%,rgba(37,137,245,.08) 0%,transparent 60%)}
+.shell{width:100%;max-width:430px;height:100vh;height:100dvh;display:flex;flex-direction:column;
+  background:linear-gradient(175deg,#07142a 0%,#0b1e3d 50%,#07142a 100%);overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.6)}
+.hdr{background:linear-gradient(135deg,var(--bg2),var(--bg3));border-bottom:2px solid var(--blue);
+  padding:13px 15px 11px;display:flex;align-items:center;justify-content:space-between;
+  z-index:50;box-shadow:0 4px 20px rgba(0,0,0,.5);flex-shrink:0}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.logo-badge{width:42px;height:42px;background:linear-gradient(135deg,var(--blue),var(--blue2));
+  border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;
+  box-shadow:0 4px 14px var(--blue-glow);flex-shrink:0}
+.logo-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--blue3);letter-spacing:1px;text-transform:uppercase;line-height:1.1}
+.logo-sub{font-size:9px;color:var(--text2);letter-spacing:2px;text-transform:uppercase}
+.clk{text-align:right}
+.clk-big{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;color:var(--blue3)}
+.clk-sm{font-size:9px;color:var(--text2);letter-spacing:1px}
+.sync-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:4px 14px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.s-ok{background:var(--green)}.s-err{background:var(--red)}.s-ing{background:var(--orange);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sync-txt{font-size:10px;color:var(--text2);letter-spacing:.8px}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:9px 2px 7px;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--text2);background:none;border:none;
+  border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;
+  display:flex;flex-direction:column;align-items:center;gap:2px;touch-action:manipulation}
+.tab .ti{font-size:16px}
+.tab.on{color:var(--blue3);border-bottom-color:var(--blue2);background:var(--blue-dim)}
+.ct{flex:1;overflow-y:auto;overflow-x:hidden;padding:13px;-webkit-overflow-scrolling:touch}
+.ct::-webkit-scrollbar{width:3px}
+.ct::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-bottom:12px;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+.card-ttl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue3);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.fld{margin-bottom:11px}
+.fld label{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
+.fld input,.fld textarea{width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--border);border-radius:10px;padding:12px 13px;color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s,box-shadow .2s}
+.fld input:focus,.fld textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(37,137,245,.15)}
+.fld input::placeholder,.fld textarea::placeholder{color:rgba(122,155,191,.4)}
+.fld textarea{resize:none;min-height:72px;font-size:15px;line-height:1.5}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation}
+.btn:active{transform:scale(.97)}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 5px 20px var(--blue-glow)}
+.btn-red{background:linear-gradient(135deg,var(--red),#ff6b6b);color:#fff}
+.btn-green{background:linear-gradient(135deg,#1db954,var(--green));color:#fff}
+.btn-out{background:transparent;border:2px solid var(--border);color:var(--text2);font-size:14px;padding:10px}
+.btn-out:hover{border-color:var(--blue2);color:var(--blue3)}
+.btn-sm{width:auto;padding:7px 12px;font-size:11px;border-radius:8px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+.b-on{background:rgba(45,198,83,.15);color:var(--green);border:1px solid rgba(45,198,83,.3)}
+.b-off{background:rgba(122,155,191,.12);color:var(--text2);border:1px solid rgba(122,155,191,.2)}
+.stat{border-radius:14px;padding:18px 15px;margin-bottom:12px;text-align:center}
+.stat-in{background:linear-gradient(135deg,rgba(29,185,84,.18),rgba(45,198,83,.06));border:1.5px solid rgba(45,198,83,.35)}
+.stat-out{background:linear-gradient(135deg,rgba(11,30,61,.9),rgba(16,42,82,.6));border:1.5px solid var(--border)}
+.stat-ico{font-size:38px;margin-bottom:7px}
+.stat-lbl{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:3px}
+.stat-nm{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:800}
+.stat-t{font-size:11px;color:var(--text2);margin-top:3px}
+.rec{background:rgba(255,255,255,.03);border:1px solid rgba(26,111,212,.18);border-radius:11px;padding:11px;margin-bottom:8px}
+.rec-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.rec-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700}
+.rec-phone{font-size:11px;color:var(--text2);margin-top:1px}
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:5px}
+.rec-tb{background:rgba(255,255,255,.04);border-radius:7px;padding:7px 9px}
+.rec-tlbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:2px}
+.rec-tv{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600}
+.rec-hrs{font-size:11px;color:var(--blue3);font-weight:600;margin-top:3px}
+.rec-obs{font-size:11px;color:var(--text2);background:rgba(26,111,212,.08);border-left:2px solid var(--blue2);padding:5px 9px;border-radius:0 6px 6px 0;margin-top:6px;line-height:1.4;font-style:italic}
+.rec-acts{display:flex;gap:5px;margin-top:7px}
+.notif{background:linear-gradient(135deg,rgba(26,111,212,.2),rgba(37,137,245,.07));border:1.5px solid var(--blue2);border-radius:11px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.notif-ttl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--blue3)}
+.notif-sub{font-size:10px;color:var(--text2);margin-top:2px}
+.sch{background:rgba(255,255,255,.03);border:1px solid rgba(26,111,212,.2);border-radius:11px;padding:12px;margin-bottom:8px}
+.sch-nm{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px}
+.sch-ph{font-size:11px;color:var(--text2);margin-bottom:7px}
+.sch-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(26,111,212,.07)}
+.sch-row:last-child{border-bottom:none}
+.sch-dia{font-size:11px;font-weight:600;min-width:68px}
+.sch-times{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--blue3)}
+.sch-off{font-size:11px;color:var(--text2);font-style:italic}
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sum-blk{background:var(--blue-dim);border:1px solid var(--border);border-radius:11px;padding:11px;text-align:center}
+.sum-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--blue3)}
+.sum-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-top:2px}
+.emp-rc{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:8px}
+.emp-rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:5px 7px;border-bottom:1px solid var(--border);text-align:left}
+.tbl td{padding:5px 7px;border-bottom:1px solid rgba(26,111,212,.07);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--border);color:var(--text2);background:transparent;cursor:pointer;transition:all .15s;touch-action:manipulation}
+.chip.on{background:var(--blue-dim);border-color:var(--blue2);color:var(--blue3)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
+.pin-btn{aspect-ratio:1;background:rgba(255,255,255,.05);border:1.5px solid var(--border);border-radius:11px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.pin-btn:active{transform:scale(.9);background:var(--blue-dim)}
+.pin-dots{display:flex;justify-content:center;gap:11px;margin:12px 0}
+.pin-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border);transition:all .15s}
+.pin-dot.on{background:var(--blue2);border-color:var(--blue2)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:18px 16px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;-webkit-overflow-scrolling:touch}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet-ttl{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:1px;color:var(--blue3);margin-bottom:12px;text-align:center;text-transform:uppercase}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 15px}
+.toast-el{position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:50px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;z-index:300;animation:toastIn .25s ease;white-space:nowrap;box-shadow:0 6px 22px rgba(0,0,0,.45);pointer-events:none;max-width:88vw;text-align:center}
+.t-ok{background:var(--green);color:#fff}.t-err{background:var(--red);color:#fff}.t-info{background:var(--blue2);color:#fff}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-14px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.sec-hdr{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);padding:6px 0 5px;margin-bottom:4px;border-bottom:1px solid var(--border)}
+.empty{text-align:center;padding:30px 14px;color:var(--text2)}
+.empty-ico{font-size:38px;margin-bottom:8px;opacity:.45}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lock-box{text-align:center;padding:30px 14px}
+.lock-ico{font-size:50px;margin-bottom:11px}
+.lock-ttl{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;color:var(--blue3);margin-bottom:5px}
+.lock-sub{font-size:12px;color:var(--text2);margin-bottom:18px;line-height:1.5}
+/* ── PANTALLA REGISTRO INICIAL ── */
+.reg-screen{position:fixed;inset:0;z-index:1000;background:linear-gradient(160deg,#07142a 0%,#0b1e3d 60%,#07142a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.reg-logo{width:72px;height:72px;background:linear-gradient(135deg,#1a6fd4,#2589f5);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 32px rgba(37,137,245,.45);margin-bottom:18px;}
+.reg-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:1px;margin-bottom:4px;text-align:center;}
+.reg-sub{font-size:13px;color:#7a9bbf;margin-bottom:28px;text-align:center;line-height:1.5;}
+.reg-card{background:rgba(11,30,61,.9);border:1px solid rgba(26,111,212,.35);border-radius:18px;padding:22px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.6);backdrop-filter:blur(10px);}
+.reg-card .rtitle{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4da3ff;margin-bottom:14px;}
+.fun-banner{background:rgba(26,111,212,.1);border:1px solid rgba(26,111,212,.28);border-radius:12px;padding:11px 13px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.fun-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1a6fd4,#2589f5);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.fun-name{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;}
+.fun-meta{font-size:11px;color:var(--text2);}
+.btn-cambiar{background:rgba(26,111,212,.15);border:1px solid rgba(26,111,212,.3);border-radius:8px;padding:6px 10px;color:var(--blue3);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;white-space:nowrap;margin-left:auto;}
+/* ── PANTALLA CONFIGURACIÓN SUPABASE ── */
+.config-screen{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#07142a 0%,#0b1e3d 60%,#07142a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto;}
+.config-card{background:rgba(11,30,61,.95);border:1px solid rgba(26,111,212,.4);border-radius:20px;padding:24px;width:100%;max-width:400px;box-shadow:0 12px 48px rgba(0,0,0,.7);}
+.config-step{background:rgba(26,111,212,.08);border:1px solid rgba(26,111,212,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--text2);line-height:1.6}
+.config-step b{color:var(--blue3)}
+.config-step code{background:rgba(26,111,212,.15);border-radius:4px;padding:1px 5px;font-size:11px;color:var(--blue3)}
+</style>
+</head>
+<body>
+<div class="shell" id="app"></div>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  S&S  ·  SUPABASE CLOUD SYNC
+//  Sincronización en tiempo real entre dispositivos
+//  Offline-first: guarda localmente si no hay internet
+// ════════════════════════════════════════════════════════════════
+
+// ── CONFIGURACIÓN SUPABASE ───────────────────────────────────────
+// Admin: al guardar la config se hardcodean aquí y se descarga el archivo
+var SUPABASE_URL_HARD = "https://phivqawgfktabsvkkzex.supabase.co";
+var SUPABASE_KEY_HARD = "sb_publishable_b1hdXP972imihg3kJVbuZg_J2lYqh-D";
+var SUPABASE_URL      = SUPABASE_URL_HARD || localStorage.getItem("ss_supa_url")  || "";
+var SUPABASE_ANON_KEY = SUPABASE_KEY_HARD || localStorage.getItem("ss_supa_key")  || "";
+
+// PIN del supervisor (puede cambiarse desde el panel)
+var PIN = localStorage.getItem("ss_pin") || "1234";
+
+var DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+
+// ── Estado UI ────────────────────────────────────────────────────
+var activeTab = "registro";
+var supAuthed = false, horAuthed = false, repAuthed = false;
+var supSection = "main";
+var chipState = {"reg-mode":"entry","rep-period":"week"};
+var repOffset = 0;
+var regPhone = "", regName = "", regObs = "", regOpenRec = null;
+var supSearch = "", supDate = "";
+var pinTarget = "", pinVal = "";
+var toast_timer = null;
+var isOnline = navigator.onLine;
+var syncChannel = null;
+
+// ── Caché local (offline-first) ──────────────────────────────────
+var _cache = {
+  records:      null,
+  schedules:    null,
+  funcionarios: null
+};
+
+// ── Utilidades ───────────────────────────────────────────────────
+function tsNow() { return new Date().toISOString(); }
+function fmtDT(d) { return d ? new Date(d).toLocaleString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "—"; }
+function fmtD(d)  { return d ? new Date(d).toLocaleDateString("es-CO",{day:"2-digit",month:"2-digit",year:"numeric"}) : ""; }
+function fmtT(d)  { return d ? new Date(d).toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"}) : "—"; }
+function hW(a, b) { if (!a || !b) return null; var d = (new Date(b) - new Date(a)) / 3600000; return d > 0 ? d : null; }
+function esc(s) { var d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+function wkRange(off) {
+  off = off || 0;
+  var t = new Date(), dw = t.getDay();
+  var m = new Date(t); m.setDate(t.getDate() - (dw===0?6:dw-1) + off*7); m.setHours(0,0,0,0);
+  var e = new Date(m); e.setDate(m.getDate()+6); e.setHours(23,59,59,999);
+  return { s:m, e:e };
+}
+function moRange(off) {
+  off = off || 0;
+  var t = new Date();
+  return { s: new Date(t.getFullYear(), t.getMonth()+off, 1, 0,0,0), e: new Date(t.getFullYear(), t.getMonth()+off+1, 0, 23,59,59) };
+}
+function groupBy(recs) {
+  var m = {};
+  recs.forEach(function(r) { if (!m[r.phone]) m[r.phone] = {name:r.name,phone:r.phone,records:[]}; m[r.phone].records.push(r); });
+  return Object.values(m);
+}
+function toast(msg, type) {
+  var old = document.getElementById("toast-el"); if (old) old.remove();
+  if (toast_timer) clearTimeout(toast_timer);
+  var el = document.createElement("div"); el.id="toast-el"; el.className="toast-el t-"+(type||"info"); el.textContent=msg;
+  document.body.appendChild(el);
+  toast_timer = setTimeout(function(){el.remove();}, 3000);
+}
+function toastReg(msg, type) {
+  var old = document.getElementById("toast-reg"); if (old) old.remove();
+  var el = document.createElement("div"); el.id="toast-reg"; el.className="toast-el t-"+(type||"info"); el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2800);
+}
+
+// ── SUPABASE API ─────────────────────────────────────────────────
+function supaHeaders() {
+  return {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+    "Content-Type": "application/json",
+    "Prefer": "return=representation"
+  };
+}
+
+function supaFetch(path, opts) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return Promise.reject(new Error("Sin configuración Supabase"));
+  return fetch(SUPABASE_URL + "/rest/v1/" + path, Object.assign({ headers: supaHeaders() }, opts || {}));
+}
+
+// GET todos los registros de una tabla
+function supaGetAll(table) {
+  return supaFetch(table + "?select=*&order=created_at.desc")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (Array.isArray(data)) {
+        localStorage.setItem("ss_cache_" + table, JSON.stringify(data));
+        return data;
+      }
+      throw new Error(JSON.stringify(data));
+    });
+}
+
+// INSERT o UPSERT
+function supaUpsert(table, row, conflictCol) {
+  var url = table;
+  if (conflictCol) url += "?on_conflict=" + conflictCol;
+  return supaFetch(url, {
+    method: "POST",
+    headers: Object.assign({}, supaHeaders(), conflictCol ? {"Prefer":"resolution=merge-duplicates,return=representation"} : {"Prefer":"return=representation"}),
+    body: JSON.stringify(row)
+  }).then(function(r){ return r.json(); });
+}
+
+// UPDATE por id
+function supaUpdate(table, id, data) {
+  return supaFetch(table + "?id=eq." + id, {
+    method: "PATCH",
+    headers: Object.assign({}, supaHeaders(), {"Prefer":"return=representation"}),
+    body: JSON.stringify(data)
+  }).then(function(r){ return r.json(); });
+}
+
+// DELETE por id
+function supaDelete(table, id) {
+  return supaFetch(table + "?id=eq." + id, { method: "DELETE" });
+}
+
+// ── CACHÉ LOCAL (offline) ────────────────────────────────────────
+function cacheGet(table) {
+  var raw = localStorage.getItem("ss_cache_" + table);
+  if (raw) { try { return JSON.parse(raw); } catch(e){} }
+  return [];
+}
+function cacheSet(table, data) {
+  localStorage.setItem("ss_cache_" + table, JSON.stringify(data));
+}
+
+// ── COLA OFFLINE ─────────────────────────────────────────────────
+var offlineQueue = JSON.parse(localStorage.getItem("ss_offline_queue") || "[]");
+
+function saveOfflineQueue() {
+  localStorage.setItem("ss_offline_queue", JSON.stringify(offlineQueue));
+}
+
+function queueOffline(op) {
+  offlineQueue.push(Object.assign({ts: Date.now()}, op));
+  saveOfflineQueue();
+}
+
+function flushOfflineQueue() {
+  if (!isOnline || !offlineQueue.length) return;
+  var q = offlineQueue.slice();
+  offlineQueue = [];
+  saveOfflineQueue();
+  var promises = q.map(function(op) {
+    if (op.type === "upsert_funcionario") return supaUpsert("funcionarios", op.data, "cedula").catch(function(){});
+    if (op.type === "insert_asistencia")  return supaUpsert("asistencias", op.data).catch(function(){});
+    if (op.type === "update_asistencia")  return supaUpdate("asistencias", op.id, op.data).catch(function(){});
+    if (op.type === "upsert_horario")     return supaUpsert("horarios", op.data, "id").catch(function(){});
+    if (op.type === "delete_horario")     return supaDelete("horarios", op.id).catch(function(){});
+    if (op.type === "delete_record")      return supaDelete("asistencias", op.id).catch(function(){});
+    if (op.type === "delete_funcionario") return supaDelete("funcionarios", op.id).catch(function(){});
+    return Promise.resolve();
+  });
+  Promise.all(promises).then(function(){
+    if (q.length) { toast("☁️ " + q.length + " registro(s) sincronizados", "ok"); refreshContent(); }
+  });
+}
+
+// ── ACCESO A DATOS (abstracción unificada) ───────────────────────
+function getRecords()   { return cacheGet("asistencias"); }
+function getSchedules() { return cacheGet("horarios"); }
+function getFuncionarios() { return cacheGet("funcionarios"); }
+
+function getMiFuncionario()   { try { return JSON.parse(localStorage.getItem("ss_miFuncionario") || "null"); } catch(e){ return null; } }
+function saveMiFuncionario(f) { localStorage.setItem("ss_miFuncionario", JSON.stringify(f)); }
+
+function cerrarSesion() {
+  var f = getMiFuncionario();
+  var nombre = f ? f.name.split(" ")[0] : "usuario";
+  if (!confirm("¿Cerrar sesión de " + nombre + "?\n\nTus registros de asistencia quedan guardados en la nube.")) return;
+  localStorage.removeItem("ss_miFuncionario");
+  regName = ""; regPhone = ""; regOpenRec = null;
+  toast("👋 Sesión cerrada", "info");
+  showRegisterScreen("new");
+}
+
+var notifSeen = (function(){ try { return JSON.parse(localStorage.getItem("ss_notif") || "{}"); } catch(e){ return {}; } })();
+function saveNotifSeen() { localStorage.setItem("ss_notif", JSON.stringify(notifSeen)); }
+
+// ── CARGA INICIAL DE DATOS ───────────────────────────────────────
+var _loadingData = false;
+function loadAllData(silent) {
+  if (_loadingData) return;
+  _loadingData = true;
+  if (!silent) updateSyncBar("loading");
+
+  var p1 = supaGetAll("asistencias").catch(function(){ return cacheGet("asistencias"); });
+  var p2 = supaGetAll("horarios").catch(function(){ return cacheGet("horarios"); });
+  var p3 = supaGetAll("funcionarios").catch(function(){ return cacheGet("funcionarios"); });
+
+  Promise.all([p1, p2, p3]).then(function(results){
+    cacheSet("asistencias",  Array.isArray(results[0]) ? results[0] : cacheGet("asistencias"));
+    cacheSet("horarios",     Array.isArray(results[1]) ? results[1] : cacheGet("horarios"));
+    cacheSet("funcionarios", Array.isArray(results[2]) ? results[2] : cacheGet("funcionarios"));
+    _loadingData = false;
+    updateSyncBar("ok");
+    refreshContent();
+    flushOfflineQueue();
+  }).catch(function(){
+    _loadingData = false;
+    updateSyncBar("offline");
+  });
+}
+
+// ── REALTIME SUPABASE (Websocket) ────────────────────────────────
+var realtimeWS = null;
+var realtimePingInterval = null;
+
+function connectRealtime() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  if (realtimeWS && realtimeWS.readyState <= 1) return;
+
+  var wsUrl = SUPABASE_URL.replace("https://", "wss://").replace("http://", "ws://")
+    + "/realtime/v1/websocket?apikey=" + SUPABASE_ANON_KEY + "&vsn=1.0.0";
+
+  try {
+    realtimeWS = new WebSocket(wsUrl);
+
+    realtimeWS.onopen = function() {
+      // Suscribir a cambios en las 3 tablas (formato correcto Supabase Realtime v2)
+      ["asistencias","horarios","funcionarios"].forEach(function(tbl, i){
+        setTimeout(function(){
+          if (realtimeWS.readyState !== 1) return;
+          realtimeWS.send(JSON.stringify({
+            topic: "realtime:ss-" + tbl,
+            event: "phx_join",
+            payload: {
+              config: {
+                broadcast: { self: false },
+                presence: { key: "" },
+                postgres_changes: [{ event: "*", schema: "public", table: tbl }]
+              }
+            },
+            ref: String(i + 1)
+          }));
+        }, i * 300);
+      });
+      // Heartbeat cada 25s
+      realtimePingInterval = setInterval(function(){
+        if (realtimeWS && realtimeWS.readyState === 1) {
+          realtimeWS.send(JSON.stringify({topic:"phoenix",event:"heartbeat",payload:{},ref:"hb"}));
+        }
+      }, 25000);
+    };
+
+    realtimeWS.onmessage = function(e) {
+      try {
+        var msg = JSON.parse(e.data);
+        if (msg.event === "postgres_changes" || (msg.payload && msg.payload.data && msg.payload.data.type)) {
+          flashSync();
+          loadAllData(true);
+        }
+      } catch(err){}
+    };
+
+    realtimeWS.onclose = function() {
+      clearInterval(realtimePingInterval);
+      // Reconectar en 5s si sigue online
+      setTimeout(function(){ if (isOnline) connectRealtime(); }, 5000);
+    };
+
+    realtimeWS.onerror = function() {
+      realtimeWS.close();
+    };
+  } catch(err) {}
+}
+
+// ── POLLING DE RESPALDO (cada 30s) ───────────────────────────────
+// Garantiza que los horarios lleguen aunque el WebSocket falle
+var _pollingInterval = null;
+function startPolling() {
+  if (_pollingInterval) clearInterval(_pollingInterval);
+  _pollingInterval = setInterval(function(){
+    if (isOnline) loadAllData(true);
+  }, 30000);
+}
+
+// ── SYNC MANUAL ──────────────────────────────────────────────────
+function manualSync() {
+  var btn = document.getElementById("btn-sync-manual");
+  if (btn) { btn.style.animation = "spin 0.8s linear"; btn.style.display = "inline-block"; }
+  updateSyncBar("loading");
+  loadAllData(false);
+  connectRealtime();
+  setTimeout(function(){
+    if (btn) btn.style.animation = "";
+  }, 1200);
+  toast("🔄 Sincronizando...", "info");
+}
+
+// ── SYNC BAR ─────────────────────────────────────────────────────
+function updateSyncBar(state) {
+  var dot = document.getElementById("sync-dot");
+  var txt = document.getElementById("sync-txt");
+  if (!dot || !txt) return;
+  if (state === "ok") {
+    dot.className = "sync-dot s-ok";
+    txt.textContent = isOnline ? "☁️ Sincronizado con Supabase — Tiempo real activo" : "💾 Guardado localmente (sin conexión)";
+  } else if (state === "loading") {
+    dot.className = "sync-dot s-ing";
+    txt.textContent = "⏳ Sincronizando con la nube...";
+  } else if (state === "offline") {
+    dot.className = "sync-dot s-err";
+    txt.textContent = "📴 Sin conexión — datos locales";
+  } else if (state === "error") {
+    dot.className = "sync-dot s-err";
+    txt.textContent = "❌ Error de conexión con Supabase";
+  }
+}
+
+function flashSync() {
+  var dot = document.getElementById("sync-dot");
+  if (!dot) return;
+  dot.className = "sync-dot s-ing";
+  setTimeout(function() { dot.className = "sync-dot s-ok"; }, 800);
+}
+
+// ── ONLINE/OFFLINE DETECTION ─────────────────────────────────────
+window.addEventListener("online", function(){
+  isOnline = true;
+  updateSyncBar("loading");
+  loadAllData(false);
+  connectRealtime();
+});
+window.addEventListener("offline", function(){
+  isOnline = false;
+  updateSyncBar("offline");
+});
+
+// ── PANTALLA CONFIGURACIÓN SUPABASE ──────────────────────────────
+function showConfigScreen() {
+  var old = document.getElementById("config-screen");
+  if (old) old.remove();
+
+  var sc = document.createElement("div");
+  sc.id = "config-screen";
+  sc.className = "config-screen";
+  sc.innerHTML =
+    '<div style="text-align:center;margin-bottom:20px">' +
+      '<div class="reg-logo">☁️</div>' +
+      '<div class="reg-title">Configurar Supabase</div>' +
+      '<div class="reg-sub">Conectá el sistema a la nube para<br>sincronizar entre dispositivos</div>' +
+    '</div>' +
+    '<div class="config-card">' +
+      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue3);margin-bottom:14px">🔧 Credenciales</div>' +
+      '<div class="config-step">1. Ir a <b>supabase.com</b> → Crear proyecto gratuito<br>2. <b>Settings → API</b><br>3. Copiar <code>Project URL</code> y <code>anon key</code></div>' +
+      '<div class="fld"><label>🌐 Project URL</label><input id="cfg-url" type="url" placeholder="https://xxxxx.supabase.co" value="'+esc(SUPABASE_URL)+'"/></div>' +
+      '<div class="fld"><label>🔑 Anon Key</label><input id="cfg-key" type="text" placeholder="eyJhbGci..." value="'+esc(SUPABASE_ANON_KEY)+'"/></div>' +
+      '<div class="config-step">4. Ejecutar en el <b>SQL Editor</b> de Supabase:<br><small style="color:var(--blue3)">Ver botón "Ver SQL" abajo</small></div>' +
+      '<button class="btn btn-out" id="btn-show-sql" style="margin-bottom:6px;margin-right:6px">📋 Ver SQL</button>' +
+      '<button class="btn btn-out" id="btn-copy-sql" style="margin-bottom:10px">📄 Copiar SQL</button>' +
+      '<div id="sql-block" style="display:none;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:12px;font-size:10px;color:var(--blue3);line-height:1.7;overflow-x:auto;white-space:pre;font-family:monospace">'+getSQLScript()+'</div>' +
+      '<button class="btn btn-blue" id="btn-save-cfg">✅ GUARDAR Y CONECTAR</button>' +
+      '<div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:16px"><button id="btn-skip-cfg" style="background:none;border:none;color:var(--text2);font-size:11px;cursor:pointer;text-decoration:underline">Continuar sin nube</button><button id="btn-close-cfg" style="background:none;border:none;color:var(--blue3);font-size:11px;cursor:pointer;text-decoration:underline">✕ Cerrar</button></div>' +
+    '</div>';
+
+  document.body.appendChild(sc);
+
+  document.getElementById("btn-show-sql").addEventListener("click", function(){
+    var b = document.getElementById("sql-block");
+    b.style.display = b.style.display === "none" ? "block" : "none";
+    this.textContent = b.style.display === "none" ? "📋 Ver SQL" : "🔼 Ocultar SQL";
+  });
+
+  document.getElementById("btn-copy-sql").addEventListener("click", function(){
+    var sql = getSQLScript();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(sql).then(function(){
+        toast("✅ SQL copiado — pegalo en Supabase SQL Editor y presioná Run","ok");
+      });
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = sql; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+      toast("✅ SQL copiado","ok");
+    }
+  });
+
+  document.getElementById("btn-save-cfg").addEventListener("click", function(){
+    var url = (document.getElementById("cfg-url")||{}).value.trim();
+    var key = (document.getElementById("cfg-key")||{}).value.trim();
+    if (!url || !key) { toastReg("⚠️ Ingresá URL y Key","err"); return; }
+    if (!url.startsWith("http")) { toastReg("⚠️ URL inválida","err"); return; }
+    SUPABASE_URL = url.replace(/\/$/, "");
+    SUPABASE_ANON_KEY = key;
+    localStorage.setItem("ss_supa_url", SUPABASE_URL);
+    localStorage.setItem("ss_supa_key", SUPABASE_ANON_KEY);
+    localStorage.setItem("ss_cfg_done", "1");
+    _grabarYDescargarHTML(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sc.remove();
+    toast("✅ Credenciales guardadas — se descargó el archivo actualizado","ok");
+    loadAllData(false);
+    connectRealtime();
+    checkFuncionarioRegistrado();
+  });
+
+  document.getElementById("btn-skip-cfg").addEventListener("click", function(){
+    sc.remove();
+    checkFuncionarioRegistrado();
+  });
+
+  var btnClose = document.getElementById("btn-close-cfg");
+  if (btnClose) btnClose.addEventListener("click", function(){
+    sc.remove();
+    // Si ya tenía credenciales, no interrumpir — solo cerrar
+    if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+      refreshContent();
+    } else {
+      checkFuncionarioRegistrado();
+    }
+  });
+}
+
+// ── GRABAR CREDENCIALES EN EL HTML Y DESCARGAR ──────────────────
+function _grabarYDescargarHTML(url, key) {
+  var html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+  html = html.replace(
+    /var SUPABASE_URL_HARD = "[^"]*";/,
+    'var SUPABASE_URL_HARD = "' + url.replace(/\\/g,"\\\\").replace(/"/g,'\\"') + '";'
+  );
+  html = html.replace(
+    /var SUPABASE_KEY_HARD = "[^"]*";/,
+    'var SUPABASE_KEY_HARD = "' + key.replace(/\\/g,"\\\\").replace(/"/g,'\\"') + '";'
+  );
+  var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "sys-asistencia-ss.html";
+  a.click();
+}
+
+function getSQLScript() {
+  var lines = [
+    "create table if not exists funcionarios (",
+    "  id text primary key,",
+    "  name text not null,",
+    "  cedula text unique not null,",
+    "  phone text,",
+    "  registrado_en timestamptz default now(),",
+    "  ultimo_acceso timestamptz,",
+    "  estado text default \'activo\',",
+    "  created_at timestamptz default now()",
+    ");",
+    "",
+    "create table if not exists asistencias (",
+    "  id text primary key,",
+    "  name text not null,",
+    "  phone text not null,",
+    "  funcionario_id text,",
+    "  entry_time timestamptz,",
+    "  exit_time timestamptz,",
+    "  observations text,",
+    "  edited_by_supervisor boolean default false,",
+    "  created_at timestamptz default now()",
+    ");",
+    "",
+    "create table if not exists horarios (",
+    "  id text primary key,",
+    "  name text not null,",
+    "  phone text not null,",
+    "  dias jsonb,",
+    "  notas text,",
+    "  updated_at timestamptz default now(),",
+    "  created_at timestamptz default now()",
+    ");",
+    "",
+    "alter table funcionarios enable row level security;",
+    "alter table asistencias enable row level security;",
+    "alter table horarios enable row level security;",
+    "",
+    "drop policy if exists \"Acceso publico funcionarios\" on funcionarios;",
+    "drop policy if exists \"Acceso publico asistencias\" on asistencias;",
+    "drop policy if exists \"Acceso publico horarios\" on horarios;",
+    "",
+    "create policy \"Acceso publico funcionarios\" on funcionarios for all using (true) with check (true);",
+    "create policy \"Acceso publico asistencias\" on asistencias for all using (true) with check (true);",
+    "create policy \"Acceso publico horarios\" on horarios for all using (true) with check (true);",
+    "",
+    "alter publication supabase_realtime add table funcionarios;",
+    "alter publication supabase_realtime add table asistencias;",
+    "alter publication supabase_realtime add table horarios;"
+  ];
+  return lines.join("\n");
+}
+// ── REGISTRO DE FUNCIONARIO ──────────────────────────────────────
+function showRegisterScreen(modo) {
+  var existing = getMiFuncionario();
+  var funs = getFuncionarios();
+  var old = document.getElementById("reg-screen");
+  if (old) old.remove();
+
+  var continueBtn = "";
+  if (existing) {
+    continueBtn =
+      '<div class="fun-banner" style="margin-bottom:12px">' +
+        '<div class="fun-av">👤</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="fun-name">' + esc(existing.name) + '</div>' +
+          '<div class="fun-meta">📄 ' + esc(existing.cedula) + (existing.phone ? '  📱 ' + esc(existing.phone) : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn btn-blue" id="btn-continue-fun" style="margin-bottom:10px">✅ Continuar como ' + esc(existing.name.split(" ")[0]) + '</button>' +
+      '<div style="text-align:center;font-size:11px;color:var(--text2);margin-bottom:12px">— o registrar otro —</div>';
+  }
+
+  var listHtml = "";
+  if (funs.length > 1) {
+    listHtml = '<div style="margin-bottom:12px">' +
+      '<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);padding:5px 0 7px;border-bottom:1px solid rgba(26,111,212,.2);margin-bottom:7px">Funcionarios registrados</div>' +
+      funs.map(function(f) {
+        return '<div class="fun-item" data-funid="' + esc(f.id) + '" style="background:rgba(26,111,212,.08);border:1px solid rgba(26,111,212,.18);border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px">' +
+          '<div class="fun-av" style="width:34px;height:34px;font-size:14px">👤</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div class="fun-name" style="font-size:14px">' + esc(f.name) + '</div>' +
+            '<div class="fun-meta">📄 ' + esc(f.cedula) + (f.phone ? '  📱 ' + esc(f.phone) : '') + '</div>' +
+          '</div>' +
+          '<span style="color:var(--blue3);font-size:18px">→</span>' +
+        '</div>';
+      }).join("") +
+    '</div>';
+  }
+
+  var screen = document.createElement("div");
+  screen.id = "reg-screen";
+  screen.className = "reg-screen";
+  screen.innerHTML =
+    '<div class="reg-logo">🛡️</div>' +
+    '<div class="reg-title">S &amp; S Seguridad</div>' +
+    '<div class="reg-sub">Control de Asistencia<br>' +
+      (modo === "switch" ? "Seleccioná o registrá un funcionario" : "Bienvenido/a al sistema") +
+    '</div>' +
+    '<div class="reg-card">' +
+      '<div class="rtitle">' + (modo === "switch" ? "🔄 Cambiar funcionario" : "📋 Identificación") + '</div>' +
+      continueBtn +
+      listHtml +
+      '<div class="fld"><label>👤 Nombre completo *</label><input id="reg-name" type="text" placeholder="Ej: Juan Pérez García" autocomplete="name"/></div>' +
+      '<div class="fld"><label>📄 Cédula de identidad *</label><input id="reg-cedula" type="text" inputmode="numeric" placeholder="Ej: 1.234.567-8"/></div>' +
+      '<div class="fld"><label>📱 Teléfono *</label><input id="reg-phone" type="tel" inputmode="tel" placeholder="Ej: 099 123 456"/></div>' +
+      '<button class="btn btn-blue" id="btn-submit-fun" style="margin-top:4px">✅ REGISTRAR Y ENTRAR</button>' +
+    '</div>';
+
+  document.body.appendChild(screen);
+
+  var btnCont = document.getElementById("btn-continue-fun");
+  if (btnCont) btnCont.addEventListener("click", continueAsFuncionario);
+  var btnSub = document.getElementById("btn-submit-fun");
+  if (btnSub) btnSub.addEventListener("click", submitRegistroFuncionario);
+  screen.querySelectorAll(".fun-item").forEach(function(el) {
+    el.addEventListener("click", function() { selectFuncionario(el.dataset.funid); });
+  });
+}
+
+function submitRegistroFuncionario() {
+  var name   = (document.getElementById("reg-name")   || {}).value || "";
+  var cedula = (document.getElementById("reg-cedula") || {}).value || "";
+  var phone  = (document.getElementById("reg-phone")  || {}).value || "";
+  name = name.trim(); cedula = cedula.trim(); phone = phone.trim();
+
+  if (!name)   { toastReg("⚠️ Ingresá tu nombre completo", "err"); return; }
+  if (!cedula) { toastReg("⚠️ Ingresá tu cédula de identidad", "err"); return; }
+  if (cedula.replace(/[^0-9]/g, "").length < 5) { toastReg("⚠️ Cédula inválida", "err"); return; }
+  if (!phone) { toastReg("⚠️ Ingresá tu número de teléfono", "err"); return; }
+  if (phone.replace(/[^0-9]/g, "").length < 7) { toastReg("⚠️ Teléfono inválido", "err"); return; }
+
+  var funs = getFuncionarios();
+  var yaExiste = funs.find(function(f) {
+    return (f.cedula || "").replace(/[^0-9]/g, "") === cedula.replace(/[^0-9]/g, "");
+  });
+
+  var funcionario;
+  if (yaExiste) {
+    yaExiste.name = name;
+    if (phone) yaExiste.phone = phone;
+    yaExiste.ultimo_acceso = tsNow();
+    funcionario = yaExiste;
+    // Actualizar en caché local
+    var idx = funs.findIndex(function(f){ return f.id === yaExiste.id; });
+    if (idx >= 0) funs[idx] = yaExiste;
+    cacheSet("funcionarios", funs);
+  } else {
+    funcionario = { id: "fun_" + Date.now(), name: name, cedula: cedula, phone: phone, registrado_en: tsNow(), ultimo_acceso: tsNow(), estado: "activo" };
+    funs.push(funcionario);
+    cacheSet("funcionarios", funs);
+  }
+
+  saveMiFuncionario(funcionario);
+  regName  = name;
+  regPhone = phone;
+
+  // Sincronizar con Supabase (o encolar si offline)
+  if (isOnline) {
+    supaUpsert("funcionarios", funcionario, "cedula").catch(function(e){ console.warn("Sync fun error:", e); });
+  } else {
+    queueOffline({ type: "upsert_funcionario", data: funcionario });
+  }
+
+  var screen = document.getElementById("reg-screen");
+  if (screen) screen.remove();
+  toast("🎉 Bienvenido/a, " + name.split(" ")[0] + "!", "ok");
+  refreshContent();
+}
+
+function continueAsFuncionario() {
+  var f = getMiFuncionario();
+  if (!f) return;
+  f.ultimo_acceso = tsNow();
+  var funs = getFuncionarios();
+  var idx = funs.findIndex(function(x){ return x.id === f.id; });
+  if (idx >= 0) funs[idx] = f;
+  cacheSet("funcionarios", funs);
+  saveMiFuncionario(f);
+  regName  = f.name;
+  regPhone = f.phone || "";
+  if (isOnline) {
+    supaUpdate("funcionarios", f.id, { ultimo_acceso: f.ultimo_acceso }).catch(function(){});
+  }
+  var screen = document.getElementById("reg-screen");
+  if (screen) screen.remove();
+  toast("👋 Bienvenido/a de nuevo, " + f.name.split(" ")[0] + "!", "ok");
+  refreshContent();
+}
+
+function selectFuncionario(id) {
+  var funs = getFuncionarios();
+  var f = funs.find(function(x){ return x.id === id; });
+  if (!f) return;
+  f.ultimo_acceso = tsNow();
+  cacheSet("funcionarios", funs);
+  saveMiFuncionario(f);
+  regName  = f.name;
+  regPhone = f.phone || "";
+  if (isOnline) {
+    supaUpdate("funcionarios", f.id, { ultimo_acceso: f.ultimo_acceso }).catch(function(){});
+  }
+  var screen = document.getElementById("reg-screen");
+  if (screen) screen.remove();
+  toast("👋 " + f.name.split(" ")[0] + " seleccionado/a", "ok");
+  refreshContent();
+}
+
+function checkFuncionarioRegistrado() {
+  var f = getMiFuncionario();
+  if (f) {
+    regName  = f.name;
+    regPhone = f.phone || "";
+    f.ultimo_acceso = tsNow();
+    var funs = getFuncionarios();
+    var idx = funs.findIndex(function(x){ return x.id === f.id; });
+    if (idx >= 0) funs[idx] = f;
+    cacheSet("funcionarios", funs);
+    saveMiFuncionario(f);
+    if (isOnline) supaUpdate("funcionarios", f.id, { ultimo_acceso: f.ultimo_acceso }).catch(function(){});
+    refreshContent();
+  } else {
+    showRegisterScreen("new");
+  }
+}
+
+window._delFun = function(id) {
+  var funs = getFuncionarios();
+  var fun = funs.find(function(f){ return f.id === id; });
+  if (!fun) return;
+  var nombre = fun.name || "este funcionario";
+  if (!confirm("⚠️ ¿Eliminar a " + nombre + "?\n\nEsta acción no se puede deshacer.")) return;
+  var nuevaLista = funs.filter(function(f){ return f.id !== id; });
+  cacheSet("funcionarios", nuevaLista);
+  var miFun = getMiFuncionario();
+  if (miFun && miFun.id === id) {
+    localStorage.removeItem("ss_miFuncionario");
+    regName = ""; regPhone = "";
+  }
+  if (isOnline) {
+    supaDelete("funcionarios", id).catch(function(){ queueOffline({ type: "delete_funcionario", id: id }); });
+  } else {
+    queueOffline({ type: "delete_funcionario", id: id });
+  }
+  toast("🗑 " + nombre + " eliminado", "info");
+  refreshContent();
+};
+
+// ── RENDER ────────────────────────────────────────────────────────
+function render() {
+  var tabs = [{id:"registro",ico:"🕐",lbl:"Registro"},{id:"supervisor",ico:"🔐",lbl:"Supervisor"}];
+  document.getElementById("app").innerHTML =
+    '<div class="hdr"><div class="hdr-logo"><div class="logo-badge">S&S</div><div><div class="logo-title">Seguridad & Servicios</div><div class="logo-sub" style="display:flex;align-items:center;gap:4px">Control de Asistencia · <span style="color:#4da3ff;font-weight:800;letter-spacing:1px">AttendX</span></div></div></div><div class="clk"><div class="clk-big" id="clk-big">--:--:--</div><div class="clk-sm" id="clk-sm">---</div></div></div>' +
+    '<div class="sync-bar"><div class="sync-dot s-ing" id="sync-dot"></div><span class="sync-txt" id="sync-txt" style="flex:1">Conectando con Supabase...</span><button id="btn-sync-manual" onclick="manualSync()" title="Sincronizar ahora" style="background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:2px 4px;line-height:1">🔄</button><span class="ctx-tip" onclick="showCtxTip(&quot;Sincronizar con Supabase&quot;,this)" style="margin-left:4px">i</span></div>' +
+    '<div class="tabs">' + tabs.map(function(t){ return '<button class="tab '+(activeTab===t.id?"on":"")+'" data-tab="'+t.id+'"><span class="ti">'+t.ico+'</span>'+t.lbl+'</button>'; }).join("") + '</div>' +
+    '<div class="ct" id="ct">' + buildContent() + '</div>';
+  bindAll();
+}
+
+function refreshContent() {
+  var ct = document.getElementById("ct");
+  if (!ct) return;
+  ct.innerHTML = buildContent();
+  bindAll();
+  document.querySelectorAll(".tab").forEach(function(b){ b.classList.toggle("on", b.dataset.tab === activeTab); });
+}
+
+function buildContent() {
+  if (activeTab === "registro")   return buildRegistro();
+  if (activeTab === "supervisor") return buildSupervisor();
+  return "";
+}
+
+function bindAll() {
+  document.querySelectorAll("[data-tab]").forEach(function(b){
+    b.addEventListener("click", function(){ activeTab = b.dataset.tab; refreshContent(); });
+  });
+  document.querySelectorAll("[data-chip]").forEach(function(c){
+    c.addEventListener("click", function(){
+      var g = c.dataset.group, v = c.dataset.chip;
+      chipState[g] = v;
+      document.querySelectorAll('[data-group="'+g+'"]').forEach(function(x){ x.classList.toggle("on", x.dataset.chip === v); });
+      if (g === "rep-period") { repOffset = 0; refreshContent(); }
+    });
+  });
+  var ph = document.getElementById("inp-phone"); if (ph) ph.addEventListener("input", onPhoneInput);
+  var nn = document.getElementById("inp-name");  if (nn && !regOpenRec) nn.addEventListener("input", function(e){ regName = e.target.value; });
+  var oo = document.getElementById("inp-obs");   if (oo) oo.addEventListener("input", function(e){ regObs = e.target.value; });
+  var ss = document.getElementById("sup-search");
+  if (ss) ss.addEventListener("input", function(e){ supSearch = e.target.value; var rl=document.getElementById("rec-list"); if(rl) rl.innerHTML=buildRecList(getSupFilt()); });
+  var sd = document.getElementById("sup-date");
+  if (sd) sd.addEventListener("change", function(e){ supDate = e.target.value; var rl=document.getElementById("rec-list"); if(rl) rl.innerHTML=buildRecList(getSupFilt()); });
+  var pp = document.getElementById("rep-prev"), pn = document.getElementById("rep-next");
+  if (pp) pp.addEventListener("click", function(){ repOffset--; refreshContent(); });
+  if (pn) pn.addEventListener("click", function(){ repOffset++; refreshContent(); });
+  document.querySelectorAll(".pin-btn").forEach(function(b){
+    b.addEventListener("touchstart", function(e){
+      e.preventDefault();
+      onPin(b.dataset.val);
+    }, { passive: false });
+    b.addEventListener("click", function(){});
+  });
+  document.querySelectorAll("[data-libre]").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var row=document.getElementById("time-row-"+cb.dataset.libre); if(row) row.style.display=cb.checked?"none":"grid";
+      var lrow=document.getElementById("lugar-row-"+cb.dataset.libre); if(lrow) lrow.style.display=cb.checked?"none":"block";
+    });
+  });
+  document.querySelectorAll("[data-action]").forEach(function(b){
+    b.addEventListener("click", function(){ var a=b.dataset.action, p=b.dataset.param||""; if(actions[a]) actions[a](p); });
+  });
+  var bcf = document.getElementById("btn-cambiar-fun");
+  if (bcf) bcf.addEventListener("click", function(){ showRegisterScreen("switch"); });
+}
+
+// ── REGISTRO ──────────────────────────────────────────────────────
+function buildRegistro() {
+  var records = getRecords();
+  var schedules = getSchedules();
+  // Detectar turno activo automáticamente (normaliza teléfono para comparar)
+  var open = records.find(function(r){ return normPhone(r.phone)===normPhone(regPhone) && normPhone(regPhone).length>=7 && r.entry_time && !r.exit_time; });
+  // Sincronizar regOpenRec y mode con la realidad de los datos
+  if (open) { regOpenRec = open; chipState["reg-mode"] = "exit"; }
+  else if (!regOpenRec) { chipState["reg-mode"] = chipState["reg-mode"] || "entry"; }
+  var mode = chipState["reg-mode"] || "entry";
+  var mySch = schedules.find(function(s){ return normPhone(s.phone)===normPhone(regPhone) && normPhone(regPhone).length>=7; });
+  var hasNew = mySch && mySch.updated_at && (!notifSeen[normPhone(regPhone)] || notifSeen[normPhone(regPhone)] < mySch.updated_at);
+  var html = "";
+  var miFun = getMiFuncionario();
+  if (miFun) {
+    html += '<div class="fun-banner">' +
+      '<div class="fun-av">👤</div>' +
+      '<div style="flex:1;min-width:0"><div class="fun-name">' + esc(miFun.name) + '</div>' +
+      '<div class="fun-meta">📄 ' + esc(miFun.cedula) + (miFun.phone ? '  📱 ' + esc(miFun.phone) : '') + '</div></div>' +
+      '<div style="display:flex;flex-direction:column;gap:4px;margin-left:6px">' +
+        '<button class="btn-cambiar" id="btn-cambiar-fun">🔄 CAMBIAR</button>' +
+        '<button class="btn-cambiar" onclick="cerrarSesion()" style="background:rgba(230,57,70,.15);border-color:rgba(230,57,70,.35);color:#e63946">🚪 SALIR</button>' +
+      '</div>' +
+    '</div>';
+  }
+  if (hasNew) html += '<div class="notif"><span style="font-size:22px">🔔</span><div style="flex:1"><div class="notif-ttl">¡Nuevo horario asignado!</div><div class="notif-sub">El supervisor publicó tu horario.</div></div><button class="btn btn-out btn-sm" data-action="dismissNotif">✓</button></div>';
+  if (open)
+    html += '<div class="stat stat-in"><div class="stat-ico">🟢</div><div class="stat-lbl">Turno activo desde</div><div class="stat-nm">'+esc(open.name)+'</div><div class="stat-t">'+fmtDT(open.entry_time)+'</div></div>';
+  else
+    html += '<div class="stat stat-out"><div class="stat-ico">🔵</div><div class="stat-lbl">Sin turno activo</div><div class="stat-nm">S&S</div><div class="stat-t">Registre su entrada</div></div>';
+  html += '<div class="card"><div class="card-ttl">'+(mode==="entry"?"🕐 Registrar Entrada":"🕔 Registrar Salida")+'</div>'+
+    '<div class="chips"><button class="chip '+(mode==="entry"?"on":"")+'" data-chip="entry" data-group="reg-mode">📥 Entrada</button><button class="chip '+(mode==="exit"?"on":"")+'" data-chip="exit" data-group="reg-mode">📤 Salida</button></div>'+
+    '<div class="fld"><label>📱 Teléfono</label><input id="inp-phone" type="tel" inputmode="tel" placeholder="Ej: 3001234567" value="'+esc(regPhone)+'"/></div>'+
+    '<div class="fld"><label>👤 Nombre Completo</label><input id="inp-name" type="text" placeholder="Su nombre completo" value="'+esc(regName)+'" '+(regOpenRec?"readonly":"")+'/></div>'+
+    '<div class="fld"><label>📝 Observaciones</label><textarea id="inp-obs" placeholder="'+(mode==="entry"?"Turno especial...":"Horas extra, incidentes...")+'">'+esc(regObs)+'</textarea></div>'+
+    '<div style="display:flex;align-items:center;gap:6px">'+'<button class="btn '+(mode==="entry"?"btn-blue":"btn-red")+'" data-action="submitReg" style="flex:1">'+(mode==="entry"?"🟢 REGISTRAR ENTRADA":"🔴 REGISTRAR SALIDA")+'</button><span class="ctx-tip" onclick="showCtxTip(mode===\'entry\'?\'Registrá el comienzo de tu turno.\':\'Registrá el fin de tu turno.\',this)">i</span></div></div>';
+  if (mySch) {
+    html += '<div class="card"><div class="card-ttl">📅 Mi Horario</div><div style="font-size:10px;color:var(--text2);margin-bottom:8px">Actualizado: '+fmtDT(mySch.updated_at)+'</div>';
+    DIAS.forEach(function(d){ var e=mySch.dias&&mySch.dias[d]; var lugarBadge=e&&e.lugar?'<span style="background:rgba(240,192,64,.18);color:#f0c040;border-radius:6px;padding:1px 7px;font-size:10px;margin-left:6px">📍'+esc(e.lugar)+'</span>':''; html+='<div class="sch-row"><span class="sch-dia">'+d+'</span>'+(e&&e.libre?'<span class="sch-off">Descanso</span>':e&&e.inicio?'<span class="sch-times">'+esc(e.inicio)+' – '+esc(e.fin)+lugarBadge+'</span>':'<span class="sch-off">—</span>')+'</div>'; });
+    if (mySch.notas) html += '<div class="rec-obs" style="margin-top:8px">📋 '+esc(mySch.notas)+'</div>';
+    html += '</div>';
+  }
+  if (regPhone) {
+    var myR = records.filter(function(r){ return normPhone(r.phone)===normPhone(regPhone); });
+    // ── Resumen de horas del funcionario ──────────────────────────
+    if (myR.length) {
+      var mHD=0, mHN=0;
+      myR.forEach(function(r){
+        if (!r.entry_time || !r.exit_time) return;
+        var en=new Date(r.entry_time), ex=new Date(r.exit_time), cur=new Date(en);
+        while(cur<ex){ var nx=new Date(cur.getTime()+60000); if(nx>ex)nx=ex; var hh=cur.getHours(); if(hh>=6&&hh<22)mHD+=(nx-cur)/3600000; else mHN+=(nx-cur)/3600000; cur=nx; }
+      });
+      var mTotal=mHD+mHN;
+      // extras por dia
+      var mByDay={};
+      myR.forEach(function(r){ var d=r.entry_time&&r.entry_time.slice(0,10); if(!d)return; mByDay[d]=(mByDay[d]||0)+(hW(r.entry_time,r.exit_time)||0); });
+      var mExtra=Object.values(mByDay).reduce(function(a,dh){ return a+(dh>8?dh-8:0); },0);
+      html += '<div class="card" style="margin-bottom:10px">'+
+        '<div class="card-ttl">⏱ Mis Horas</div>'+
+        '<div class="sum-grid" style="grid-template-columns:1fr 1fr">'+
+          '<div class="sum-blk"><div class="sum-val">'+mTotal.toFixed(1)+'</div><div class="sum-lbl">Total</div></div>'+
+          '<div class="sum-blk"><div class="sum-val" style="color:var(--orange)">'+mExtra.toFixed(1)+'</div><div class="sum-lbl">Extra</div></div>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-around;margin-top:8px;font-size:12px">'+
+          '<span>☀️ <b>'+mHD.toFixed(2)+'h</b> diurnas</span>'+
+          '<span>🌙 <b>'+mHN.toFixed(2)+'h</b> nocturnas</span>'+
+        '</div>'+
+      '</div>';
+    }
+    // ── Calculadora de cobro del funcionario ──────────────────────
+    var calcVD = localStorage.getItem('calc_vd_'+normPhone(regPhone))||'';
+    var calcVN = localStorage.getItem('calc_vn_'+normPhone(regPhone))||'';
+    var calcDesc = localStorage.getItem('calc_desc_'+normPhone(regPhone))||'';
+    html += '<div class="card" style="margin-bottom:10px">'+
+      '<div class="card-ttl" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleLiq()">💰 Mi Liquidación — '+(function(){var n=new Date();return ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][n.getMonth()]+' '+n.getFullYear();})()+'  <span id="liq-toggle-ico">▼</span></div>'+
+      '<div id="liq-body" style="display:none">'+
+      '<div class="fld"><label>☀️ Valor hora diurna</label><input id="calc-vd" type="number" min="0" placeholder="0.00" value="'+calcVD+'" oninput="calcFunLiq()"/></div>'+
+      '<div class="fld"><label>🌙 Valor hora nocturna</label><input id="calc-vn" type="number" min="0" placeholder="0.00" value="'+calcVN+'" oninput="calcFunLiq()"/></div>'+
+      '<div class="fld"><label>✂️ Descuento / Impuestos (%)</label><input id="calc-desc" type="number" min="0" max="100" placeholder="Ej: 18" value="'+calcDesc+'" oninput="calcFunLiq()"/></div>'+
+      '<div id="calc-result" style="margin-top:10px;padding:10px;background:rgba(26,111,212,.08);border-radius:10px;font-size:13px">Completá los valores para ver el cálculo.</div>'+
+      '</div>'+
+    '</div>';
+    if (calcVD || calcVN) setTimeout(calcFunLiq, 100);
+    html += '<div class="card"><div class="card-ttl">📋 Mis Registros</div>'+(myR.length ? myR.slice(0,5).map(function(r){return recHTML(r,false);}).join("") : '<div class="empty"><div class="empty-ico">📂</div><p style="font-size:13px">Sin registros</p></div>')+'</div>';
+  }
+  return html;
+}
+
+function normPhone(p){ return (p||"").replace(/\D/g,""); }
+
+function getLugares() {
+  try { return JSON.parse(localStorage.getItem("lugares_hist")||"[]"); } catch(e){ return []; }
+}
+function saveLugar(lugar) {
+  if (!lugar.trim()) return;
+  var list = getLugares();
+  if (!list.includes(lugar.trim())) { list.unshift(lugar.trim()); list = list.slice(0,30); }
+  localStorage.setItem("lugares_hist", JSON.stringify(list));
+}
+function lugarSuggest(inp, dia) {
+  var val = inp.value.toLowerCase();
+  var sug = document.getElementById("h-lugar-sug-"+dia);
+  if (!sug) return;
+  if (!val) { sug.style.display="none"; return; }
+  var matches = getLugares().filter(function(l){ return l.toLowerCase().includes(val); }).slice(0,5);
+  if (!matches.length) { sug.style.display="none"; return; }
+  sug.innerHTML = matches.map(function(m){
+    var safe = m.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+    return '<div style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)" onclick="lugarPick(\''+dia+'\',\''+safe+'\')">'+m+'</div>';
+  }).join("");
+  sug.style.display="block";
+}
+function lugarPick(dia, val) {
+  var inp = document.getElementById("h-lugar-"+dia);
+  var sug = document.getElementById("h-lugar-sug-"+dia);
+  if (inp) inp.value = val;
+  if (sug) sug.style.display="none";
+}
+
+function toggleLiq() {
+  var body = document.getElementById("liq-body");
+  var ico = document.getElementById("liq-toggle-ico");
+  if (!body) return;
+  if (body.style.display === "none") {
+    body.style.display = "block";
+    if (ico) ico.textContent = "▲";
+    setTimeout(calcFunLiq, 50);
+  } else {
+    body.style.display = "none";
+    if (ico) ico.textContent = "▼";
+  }
+}
+
+var MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function getLiqHist(phone) {
+  try { return JSON.parse(localStorage.getItem('liq_hist_'+phone)||'{}'); } catch(e){ return {}; }
+}
+function saveLiqMes(phone, yr, mo, data) {
+  var hist = getLiqHist(phone);
+  var key = yr+'-'+(mo<9?'0':'')+(mo+1);
+  hist[key] = data;
+  localStorage.setItem('liq_hist_'+phone, JSON.stringify(hist));
+}
+function calcAguinaldo(phone, yr, mo) {
+  // Junio (mo=5): semestre dic-may (mo 11 del yr-1 a mo 4 del yr)
+  // Diciembre (mo=11): semestre jun-nov (mo 5 a 10 del yr)
+  var hist = getLiqHist(phone);
+  var meses = [];
+  if (mo === 5) {
+    // diciembre año anterior + ene-may año actual
+    meses = [(yr-1)+'-12', yr+'-01', yr+'-02', yr+'-03', yr+'-04', yr+'-05'];
+  } else if (mo === 11) {
+    meses = [yr+'-06', yr+'-07', yr+'-08', yr+'-09', yr+'-10', yr+'-11'];
+  }
+  var suma = 0;
+  meses.forEach(function(k){ if (hist[k]) suma += (hist[k].bruto||0); });
+  return suma / 12;
+}
+
+function calcFunLiq() {
+  var vd = parseFloat((document.getElementById("calc-vd")||{}).value)||0;
+  var vn = parseFloat((document.getElementById("calc-vn")||{}).value)||0;
+  var desc = parseFloat((document.getElementById("calc-desc")||{}).value)||0;
+  var phone = normPhone(regPhone);
+  if (vd) localStorage.setItem("calc_vd_"+phone, vd);
+  if (vn) localStorage.setItem("calc_vn_"+phone, vn);
+  if (desc) localStorage.setItem("calc_desc_"+phone, desc);
+  var now = new Date(), yr = now.getFullYear(), mo = now.getMonth();
+  var records = getRecords().filter(function(r){
+    if (!r.entry_time) return false;
+    var d = new Date(r.entry_time);
+    return normPhone(r.phone)===phone && d.getFullYear()===yr && d.getMonth()===mo;
+  });
+  var hD=0, hN=0;
+  records.forEach(function(r){
+    if (!r.entry_time || !r.exit_time) return;
+    var en=new Date(r.entry_time), ex=new Date(r.exit_time), cur=new Date(en);
+    while(cur<ex){ var nx=new Date(cur.getTime()+60000); if(nx>ex)nx=ex; var hh=cur.getHours(); if(hh>=6&&hh<22)hD+=(nx-cur)/3600000; else hN+=(nx-cur)/3600000; cur=nx; }
+  });
+  var bruto = hD*vd + hN*vn;
+  var descMonto = bruto * desc / 100;
+  var neto = bruto - descMonto;
+  var el = document.getElementById("calc-result");
+  if (!el) return;
+  if (!vd && !vn) { el.innerHTML="Completá los valores para ver el cálculo."; return; }
+  // Guardar este mes en historial
+  saveLiqMes(phone, yr, mo, {bruto:bruto, neto:neto, vd:vd, vn:vn, desc:desc, hD:hD, hN:hN});
+  // Calcular aguinaldo si corresponde
+  var aguinaldo = (mo===5||mo===11) ? calcAguinaldo(phone, yr, mo) : null;
+  var aguiHtml = aguinaldo!==null ? '<div style="margin-top:8px;padding:8px;background:rgba(240,192,64,.1);border-radius:8px;border:1px solid rgba(240,192,64,.3)"><div style="font-size:12px;color:#f0c040;font-weight:700">🎁 Aguinaldo estimado ('+(mo===5?'Junio':'Diciembre')+' '+yr+')</div><div style="font-size:15px;font-weight:800;color:#f0c040">'+aguinaldo.toFixed(2)+'</div><div style="font-size:10px;color:var(--text2)">Suma semestre ÷ 12 (Ley 12.840)</div></div>' : '';
+  // Historial de meses
+  var hist = getLiqHist(phone);
+  var histKeys = Object.keys(hist).sort().reverse().slice(0,12);
+  var histHtml = histKeys.length > 1 ? '<div style="margin-top:10px"><div style="font-size:11px;color:var(--text2);margin-bottom:5px">📅 Historial</div>'+
+    histKeys.map(function(k){
+      var parts = k.split('-'); var mIdx = parseInt(parts[1])-1;
+      var nomMes = MESES_NOM[mIdx]+' '+parts[0];
+      var isActual = (parseInt(parts[0])===yr && mIdx===mo);
+      return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)'+(isActual?';color:var(--blue3);font-weight:700':'')+'">'+'<span>'+nomMes+'</span><span>'+hist[k].neto.toFixed(2)+'</span></div>';
+    }).join('')+'</div>' : '';
+  el.innerHTML =
+    "<div style=\"display:flex;justify-content:space-between;margin-bottom:5px\"><span>☀️ "+hD.toFixed(2)+"h × "+vd+"</span><span><b>"+(hD*vd).toFixed(2)+"</b></span></div>"+
+    "<div style=\"display:flex;justify-content:space-between;margin-bottom:5px\"><span>🌙 "+hN.toFixed(2)+"h × "+vn+"</span><span><b>"+(hN*vn).toFixed(2)+"</b></span></div>"+
+    "<div style=\"display:flex;justify-content:space-between;margin-bottom:5px;border-top:1px solid rgba(255,255,255,.1);padding-top:5px\"><span>💰 Bruto</span><span><b>"+bruto.toFixed(2)+"</b></span></div>"+
+    (desc>0?"<div style=\"display:flex;justify-content:space-between;margin-bottom:5px;color:var(--red)\"><span>✂️ Descuento "+desc+"%</span><span>-"+descMonto.toFixed(2)+"</span></div>":"")+
+    "<div style=\"display:flex;justify-content:space-between;font-size:16px;font-weight:800;border-top:1px solid rgba(255,255,255,.15);padding-top:6px;color:var(--blue3)\"><span>✅ Neto "+MESES_NOM[mo]+"</span><span>"+neto.toFixed(2)+"</span></div>"+
+    aguiHtml + histHtml;
+}
+function calcSupLiq() {
+  var vd = parseFloat((document.getElementById("sup-vd")||{}).value)||0;
+  var vn = parseFloat((document.getElementById("sup-vn")||{}).value)||0;
+  var desc = parseFloat((document.getElementById("sup-desc")||{}).value)||0;
+  var adv = parseFloat((document.getElementById("sup-adv")||{}).value)||0;
+  if (vd) localStorage.setItem("sup_vd", vd);
+  if (vn) localStorage.setItem("sup_vn", vn);
+  if (desc) localStorage.setItem("sup_desc", desc);
+  if (adv) localStorage.setItem("sup_adv", adv);
+  var el = document.getElementById("sup-liq-result");
+  if (!el) return;
+  if (!vd && !vn) { el.innerHTML="Completá los valores para ver el cálculo."; return; }
+  var now = new Date(), yr = now.getFullYear(), mo = now.getMonth();
+  var records = getRecords().filter(function(r){
+    if (!r.entry_time || !r.exit_time) return false;
+    var d = new Date(r.entry_time);
+    return d.getFullYear()===yr && d.getMonth()===mo;
+  });
+  // agrupar por funcionario
+  var byEmp = {};
+  records.forEach(function(r){
+    var key = normPhone(r.phone);
+    if (!byEmp[key]) byEmp[key] = {name: r.name||r.phone, hD:0, hN:0};
+    if (!r.entry_time||!r.exit_time) return;
+    var en=new Date(r.entry_time), ex=new Date(r.exit_time), cur=new Date(en);
+    while(cur<ex){ var nx=new Date(cur.getTime()+60000); if(nx>ex)nx=ex; var hh=cur.getHours(); if(hh>=6&&hh<22)byEmp[key].hD+=(nx-cur)/3600000; else byEmp[key].hN+=(nx-cur)/3600000; cur=nx; }
+  });
+  var html = '<div style="font-weight:700;margin-bottom:8px;font-size:13px">📋 Resumen del mes por funcionario:</div>';
+  Object.values(byEmp).forEach(function(emp){
+    var bruto = emp.hD*vd + emp.hN*vn;
+    var descMonto = bruto*desc/100;
+    var neto = bruto - descMonto - adv;
+    html +=
+      '<div style="border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px;margin-bottom:8px">'+
+      '<div style="font-weight:700;margin-bottom:5px">👤 '+esc(emp.name)+'</div>'+
+      '<div style="font-size:12px;display:flex;justify-content:space-between"><span>☀️ '+emp.hD.toFixed(2)+'h diurnas</span><span>'+( emp.hD*vd).toFixed(2)+'</span></div>'+
+      '<div style="font-size:12px;display:flex;justify-content:space-between"><span>🌙 '+emp.hN.toFixed(2)+'h nocturnas</span><span>'+(emp.hN*vn).toFixed(2)+'</span></div>'+
+      '<div style="font-size:12px;display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;padding-top:4px"><span>💰 Bruto</span><span>'+bruto.toFixed(2)+'</span></div>'+
+      (desc>0?'<div style="font-size:12px;display:flex;justify-content:space-between;color:var(--red)"><span>✂️ Desc. '+desc+'%</span><span>-'+descMonto.toFixed(2)+'</span></div>':'')+
+      (adv>0?'<div style="font-size:12px;display:flex;justify-content:space-between;color:var(--orange)"><span>💸 Vale/Adelanto</span><span>-'+adv.toFixed(2)+'</span></div>':'')+
+      '<div style="font-size:14px;font-weight:800;display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.15);margin-top:4px;padding-top:4px;color:var(--blue3)"><span>✅ Neto</span><span>'+neto.toFixed(2)+'</span></div>'+
+      '</div>';
+  });
+  if (!Object.keys(byEmp).length) html = 'Sin registros este mes.';
+  el.innerHTML = html;
+}
+
+// ── CIERRE AUTOMÁTICO DE TURNO ────────────────────────────────────
+function autoCloseCheck() {
+  if (!regPhone || normPhone(regPhone).length < 7) return;
+  var records = getRecords();
+  var open = records.find(function(r){
+    return normPhone(r.phone)===normPhone(regPhone) && r.entry_time && !r.exit_time;
+  });
+  if (!open) return;
+  // Buscar horario del funcionario
+  var schedules = getSchedules();
+  var mySch = schedules.find(function(s){ return normPhone(s.phone)===normPhone(regPhone); });
+  if (!mySch || !mySch.end_time) return;
+  // Calcular hora de fin del turno hoy
+  var now = new Date();
+  var parts = mySch.end_time.split(":");
+  var endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(parts[0]), parseInt(parts[1]||0), 0);
+  // Si end_time es menor que start_time el turno termina al día siguiente
+  if (mySch.start_time) {
+    var sp = mySch.start_time.split(":");
+    var startH = parseInt(sp[0]), endH = parseInt(parts[0]);
+    if (endH < startH) endToday.setDate(endToday.getDate() + 1);
+  }
+  // Si pasaron más de 10 minutos del fin del turno
+  var diff = now - endToday; // ms
+  if (diff < 10 * 60 * 1000) return;
+  // Cerrar automáticamente a la hora exacta del turno
+  var idx = records.findIndex(function(r){ return r.id === open.id; });
+  if (idx < 0) return;
+  records[idx].exit_time = endToday.toISOString();
+  cacheSet("asistencias", records);
+  var upd = { exit_time: records[idx].exit_time };
+  if (isOnline) {
+    supaUpdate("asistencias", records[idx].id, upd).catch(function(){
+      queueOffline({ type: "update_asistencia", id: records[idx].id, data: upd });
+    });
+  } else {
+    queueOffline({ type: "update_asistencia", id: records[idx].id, data: upd });
+  }
+  regOpenRec = null;
+  chipState["reg-mode"] = "entry";
+  // Notificar al funcionario
+  toast("⚠️ Salida registrada automáticamente a las " + mySch.end_time, "info");
+  refreshContent();
+}
+
+// ── ALERTA SONORA AL FIN DE TURNO ────────────────────────────────
+var _shiftAlertFired = false;
+
+function shiftEndAlert() {
+  if (!regPhone || normPhone(regPhone).length < 7) return;
+  var records = getRecords();
+  var open = records.find(function(r){
+    return normPhone(r.phone)===normPhone(regPhone) && r.entry_time && !r.exit_time;
+  });
+  if (!open) { _shiftAlertFired = false; return; }
+  var schedules = getSchedules();
+  var mySch = schedules.find(function(s){ return normPhone(s.phone)===normPhone(regPhone); });
+  if (!mySch || !mySch.end_time) return;
+  var now = new Date();
+  var parts = mySch.end_time.split(":");
+  var endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(parts[0]), parseInt(parts[1]||0), 0);
+  if (mySch.start_time) {
+    var sp = mySch.start_time.split(":");
+    if (parseInt(parts[0]) < parseInt(sp[0])) endToday.setDate(endToday.getDate()+1);
+  }
+  var diff = now - endToday;
+  // Alerta entre 0 y 10 minutos del fin de turno
+  if (diff >= 0 && diff < 10*60*1000 && !_shiftAlertFired) {
+    _shiftAlertFired = true;
+    // Sonido de alerta
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.3, 0.6].forEach(function(t){
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = "sine"; osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.5, ctx.currentTime+t);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+t+0.25);
+        osc.start(ctx.currentTime+t); osc.stop(ctx.currentTime+t+0.25);
+      });
+    } catch(e){}
+    // Alerta visual
+    var av = document.createElement("div");
+    av.className = "ov";
+    av.innerHTML = '<div class="sheet" style="text-align:center">'+
+      '<div style="font-size:48px;margin-bottom:8px">⏰</div>'+
+      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:800;color:var(--orange)">¡FIN DE TURNO!</div>'+
+      '<div style="font-size:14px;color:var(--text2);margin:8px 0 16px">Tu turno terminó a las <b>'+mySch.end_time+'</b>.<br>Por favor registrá tu salida.</div>'+
+      '<button class="btn btn-red" style="margin-bottom:8px" id="alert-exit-btn">🔴 REGISTRAR SALIDA AHORA</button>'+
+      '<button class="btn btn-out" id="alert-close-btn">Cerrar</button>'+
+    '</div>';
+    document.body.appendChild(av);
+    document.getElementById("alert-exit-btn").addEventListener("click", function(){
+      av.remove(); chipState["reg-mode"]="exit"; refreshContent();
+    });
+    document.getElementById("alert-close-btn").addEventListener("click", function(){ av.remove(); });
+  }
+  if (diff < 0) _shiftAlertFired = false;
+}
+
+// Verificar cierre automático y alerta cada minuto
+setInterval(function(){ autoCloseCheck(); shiftEndAlert(); }, 60000);
+
+function onPhoneInput() {
+  regPhone = (document.getElementById("inp-phone")||{}).value || "";
+  var digits = normPhone(regPhone);
+  var records = getRecords();
+  var open = records.find(function(r){ return normPhone(r.phone)===digits && digits.length>=7 && r.entry_time && !r.exit_time; });
+  var prevOpen = regOpenRec;
+  regOpenRec = open || null;
+  if (open) {
+    regName = open.name;
+    chipState["reg-mode"] = "exit";
+    if (!prevOpen || prevOpen.id !== open.id) refreshContent();
+    else { var nn = document.getElementById("inp-name"); if (nn) nn.value = open.name; }
+  } else {
+    chipState["reg-mode"] = "entry";
+    if (prevOpen) refreshContent();
+  }
+}
+
+function recHTML(r, sup) {
+  var h = hW(r.entry_time, r.exit_time);
+  var confirmed = r.sup_confirmed;
+  var manual = r.manual_by_sup;
+  var badgeHtml = confirmed
+    ? '<span class="badge" style="background:rgba(45,198,83,.2);color:#2dc653;border:1px solid rgba(45,198,83,.4)">✅ Confirmado</span>'
+    : (r.exit_time
+        ? '<span class="badge" style="background:rgba(45,198,83,.12);color:#2dc653;border:1px solid rgba(45,198,83,.25)">✅ Completado</span>'
+        : '<span class="badge b-on">● Activo</span>');
+  var editBadge = r.edited_by_supervisor ? '<div style="font-size:9px;color:var(--blue3);margin-top:3px;text-align:right">✏️ editado</div>' : '';
+  var manualBadge = manual ? '<div style="font-size:9px;color:#f0c040;margin-top:3px;text-align:right">📋 manual</div>' : '';
+  var borderStyle = confirmed ? "border-left:3px solid #2dc653;" : (manual ? "border-left:3px solid #f0c040;" : "");
+  var html = '<div class="rec" style="'+borderStyle+'">'+
+    '<div class="rec-hdr"><div><div class="rec-name">'+esc(r.name)+'</div><div class="rec-phone">📱 '+esc(r.phone)+'</div></div>'+
+    '<div>'+badgeHtml+editBadge+manualBadge+'</div></div>'+
+    '<div class="rec-grid"><div class="rec-tb"><div class="rec-tlbl">Entrada</div><div class="rec-tv">'+fmtD(r.entry_time)+'</div><div class="rec-tv">'+fmtT(r.entry_time)+'</div></div><div class="rec-tb"><div class="rec-tlbl">Salida</div><div class="rec-tv">'+( r.exit_time?fmtD(r.exit_time):"—")+'</div><div class="rec-tv">'+( r.exit_time?fmtT(r.exit_time):"Pendiente")+'</div></div></div>'+
+    (h!==null ? '<div class="rec-hrs">⏱ '+h.toFixed(2)+' horas trabajadas</div>' : "")+
+    (r.observations ? '<div class="rec-obs">📝 '+esc(r.observations)+'</div>' : "");
+  if (sup) {
+    var confirmBtn = !confirmed
+      ? '<button class="btn btn-sm" style="background:rgba(45,198,83,.15);color:#2dc653;border:1px solid rgba(45,198,83,.3)" onclick="_confirmRec(\''+esc(r.id)+'\')">✅ Confirmar</button>'
+      : '<button class="btn btn-sm" style="background:rgba(45,198,83,.3);color:#2dc653;border:1px solid rgba(45,198,83,.5)" onclick="_unconfirmRec(\''+esc(r.id)+'\')">✅ Confirmado</button>';
+    html += '<div class="rec-acts">'+confirmBtn+'<button class="btn btn-out btn-sm" onclick="_editRec(\''+esc(r.id)+'\')">✏️ Editar</button><button class="btn btn-sm" style="background:rgba(230,57,70,.15);color:var(--red);border:1px solid rgba(230,57,70,.3)" onclick="_delRec(\''+esc(r.id)+'\')">🗑</button></div>';
+  }
+  return html + '</div>';
+}
+// ── ACCIONES ──────────────────────────────────────────────────────
+var actions = {
+  submitReg: function() {
+    regName  = (document.getElementById("inp-name") ||{}).value || regName;
+    regPhone = (document.getElementById("inp-phone")||{}).value || regPhone;
+    regObs   = (document.getElementById("inp-obs")  ||{}).value || regObs;
+    var mode = chipState["reg-mode"] || "entry";
+    if (!regName.trim() || !regPhone.trim()) { toast("Complete nombre y teléfono","err"); return; }
+    if (regPhone.replace(/\D/g,"").length < 7) { toast("Número inválido","err"); return; }
+    var records = getRecords();
+    if (mode === "entry") {
+      var turnoActivo = records.find(function(r){ return normPhone(r.phone)===normPhone(regPhone) && normPhone(regPhone).length>=7 && r.entry_time && !r.exit_time; });
+      if (turnoActivo) {
+        var horaEntrada = fmtT(turnoActivo.entry_time);
+        var av = document.createElement("div"); av.className="ov"; av.id="av-turno";
+        av.innerHTML = '<div class="sheet"><div class="sheet-handle"></div>'+
+          '<div style="text-align:center;margin-bottom:14px">'+
+            '<div style="font-size:40px;margin-bottom:8px">⚠️</div>'+
+            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:800;color:#f5a623;margin-bottom:8px">Turno sin cerrar</div>'+
+            '<div style="font-size:13px;color:#dce8fb;line-height:1.6">Tenés un turno activo desde las <b style="color:#4da3ff">'+horaEntrada+'</b> sin salida registrada.<br><br>Para iniciar un segundo turno, primero registrá la <b style="color:#e63946">salida del turno anterior</b>.</div>'+
+          '</div>'+
+          '<div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#f5a623;line-height:1.5">'+
+            '📋 <b>¿Hacés dos turnos en el mismo día?</b><br>Registrá la salida del turno 1 antes de registrar la entrada del turno 2. Los reportes suman las horas de ambos.'+
+          '</div>'+
+          '<button class="btn btn-red" id="av-ir-salida" style="margin-bottom:8px">🔴 IR A REGISTRAR SALIDA</button>'+
+          '<button class="btn btn-out" id="av-cancelar">Cancelar</button>'+
+        '</div>';
+        document.body.appendChild(av);
+        document.getElementById("av-ir-salida").addEventListener("click", function(){ av.remove(); chipState["reg-mode"]="exit"; refreshContent(); });
+        document.getElementById("av-cancelar").addEventListener("click", function(){ av.remove(); });
+        return;
+      }
+      var rec = { id: "rec_" + Date.now(), name: regName.trim(), phone: regPhone.trim(), entry_time: tsNow(), exit_time: null, observations: regObs.trim(), created_at: tsNow() };
+      records.push(rec);
+      cacheSet("asistencias", records);
+      if (isOnline) {
+        supaUpsert("asistencias", rec).catch(function(){ queueOffline({ type: "insert_asistencia", data: rec }); });
+      } else {
+        queueOffline({ type: "insert_asistencia", data: rec });
+      }
+      toast("✅ Entrada registrada","ok");
+    } else {
+      if (!regOpenRec) { toast("No hay entrada activa","err"); return; }
+      var idx = records.findIndex(function(r){ return r.id === regOpenRec.id; });
+      if (idx >= 0) {
+        records[idx].exit_time = tsNow();
+        records[idx].observations = regObs.trim() || records[idx].observations || "";
+        cacheSet("asistencias", records);
+        var upd = { exit_time: records[idx].exit_time, observations: records[idx].observations };
+        if (isOnline) {
+          supaUpdate("asistencias", records[idx].id, upd).catch(function(){ queueOffline({ type: "update_asistencia", id: records[idx].id, data: upd }); });
+        } else {
+          queueOffline({ type: "update_asistencia", id: records[idx].id, data: upd });
+        }
+      }
+      toast("👋 Salida registrada","ok");
+    }
+    regName=""; regPhone=""; regObs=""; regOpenRec=null; chipState["reg-mode"]="entry";
+    refreshContent();
+  },
+  dismissNotif: function() {
+    notifSeen[normPhone(regPhone)] = tsNow();
+    saveNotifSeen();
+    refreshContent();
+  },
+  openSupPin: function(){ openPin("sup"); },
+  openChangePin: function(){ openChangePinForm(); },
+  delFun: function(id){ if(window._delFun) window._delFun(id); },
+  openHorPin: function(){ openPin("hor"); },
+  openRepPin: function(){ openPin("rep"); },
+  newHorario: function(){ openHorForm(null); },
+  editHorario: function(id){
+    var schedules = getSchedules();
+    openHorForm(schedules.find(function(s){ return s.id===id; }));
+  },
+  delHorario: function(id) {
+    if (!confirm("¿Eliminar horario?")) return;
+    var schedules = getSchedules().filter(function(x){ return x.id !== id; });
+    cacheSet("horarios", schedules);
+    if (isOnline) {
+      supaDelete("horarios", id).catch(function(){});
+    } else {
+      queueOffline({ type: "delete_horario", id: id });
+    }
+    toast("🗑 Eliminado","info");
+    refreshContent();
+  },
+  goSupHorarios: function(){ supSection="horarios"; refreshContent(); },
+  goSupReportes: function(){ supSection="reportes"; refreshContent(); },
+  goSupMain: function(){ supSection="main"; refreshContent(); },
+  newManualRec: function(){ openManualRecForm(); }
+};
+
+// ── Confirmar / desconfirmar registro ─────────────────────────────
+window._confirmRec = function(id) {
+  var records = getRecords();
+  var idx = records.findIndex(function(r){ return r.id === id; });
+  if (idx < 0) return;
+  records[idx].sup_confirmed = true;
+  cacheSet("asistencias", records);
+  if (isOnline) {
+    supaUpdate("asistencias", id, { sup_confirmed: true }).catch(function(){
+      queueOffline({ type: "update_asistencia", id: id, data: { sup_confirmed: true } });
+    });
+  } else {
+    queueOffline({ type: "update_asistencia", id: id, data: { sup_confirmed: true } });
+  }
+  toast("✅ Registro confirmado","ok");
+  refreshContent();
+};
+window._unconfirmRec = function(id) {
+  var records = getRecords();
+  var idx = records.findIndex(function(r){ return r.id === id; });
+  if (idx < 0) return;
+  records[idx].sup_confirmed = false;
+  cacheSet("asistencias", records);
+  if (isOnline) {
+    supaUpdate("asistencias", id, { sup_confirmed: false }).catch(function(){});
+  }
+  toast("↩️ Confirmación removida","info");
+  refreshContent();
+};
+
+// ── Registro manual por supervisor ────────────────────────────────
+function openManualRecForm() {
+  var funs = getFuncionarios();
+  var funOpts = funs.map(function(f){
+    return '<option value="'+esc(f.phone)+'|'+esc(f.name)+'">'+esc(f.name)+' ('+esc(f.phone)+')</option>';
+  }).join('');
+  var today = new Date().toISOString().slice(0,10);
+  var ov = document.createElement('div'); ov.className='ov'; ov.id='manual-rec-ov';
+  ov.innerHTML =
+    '<div class="sheet">'+
+      '<div class="sheet-handle"></div>'+
+      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:18px;font-weight:800;color:var(--blue3);margin-bottom:14px">📋 Registro Manual</div>'+
+      '<div class="fld"><label>Funcionario</label><select id="mr-fun" style="width:100%;padding:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text)"><option value="">Seleccioná...</option>'+funOpts+'</select></div>'+
+      '<div class="fld"><label>Fecha</label><input type="date" id="mr-fecha" value="'+today+'"/></div>'+
+      '<div class="two-col">'+
+        '<div class="fld"><label>Hora Entrada</label><input type="time" id="mr-ini"/></div>'+
+        '<div class="fld"><label>Hora Salida</label><input type="time" id="mr-fin"/></div>'+
+      '</div>'+
+      '<div class="fld"><label>Observación</label><input type="text" id="mr-obs" placeholder="Motivo del registro manual..."/></div>'+
+      '<div style="display:flex;gap:8px;margin-top:8px">'+
+        '<button class="btn btn-green" style="flex:1" onclick="_saveManualRec()">✅ Guardar y Confirmar</button>'+
+        '<button class="btn btn-out" onclick="document.getElementById(\'manual-rec-ov\').remove()">Cancelar</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(ov);
+}
+window._saveManualRec = function() {
+  var funVal = (document.getElementById('mr-fun')||{}).value || '';
+  var fecha  = (document.getElementById('mr-fecha')||{}).value || '';
+  var ini    = (document.getElementById('mr-ini')||{}).value || '';
+  var fin    = (document.getElementById('mr-fin')||{}).value || '';
+  var obs    = (document.getElementById('mr-obs')||{}).value || '';
+  if (!funVal || !fecha || !ini) { toast('Completá funcionario, fecha y entrada','err'); return; }
+  var parts = funVal.split('|');
+  var phone = parts[0], name = parts.slice(1).join('|');
+  var entryDT = fecha + 'T' + ini + ':00';
+  var exitDT  = fin ? fecha + 'T' + fin + ':00' : null;
+  // Si la salida es menor que la entrada, es al día siguiente
+  if (exitDT && fin < ini) {
+    var nextDay = new Date(fecha); nextDay.setDate(nextDay.getDate()+1);
+    exitDT = nextDay.toISOString().slice(0,10) + 'T' + fin + ':00';
+  }
+  var rec = {
+    id: 'rec_' + Date.now(),
+    name: name, phone: phone,
+    entry_time: entryDT, exit_time: exitDT,
+    observations: obs || 'Registro manual por supervisor',
+    created_at: tsNow(),
+    edited_by_supervisor: true,
+    manual_by_sup: true,
+    sup_confirmed: true
+  };
+  var records = getRecords();
+  records.push(rec);
+  cacheSet('asistencias', records);
+  if (isOnline) {
+    supaUpsert('asistencias', rec).catch(function(){ queueOffline({ type: 'insert_asistencia', data: rec }); });
+  } else {
+    queueOffline({ type: 'insert_asistencia', data: rec });
+  }
+  var ov = document.getElementById('manual-rec-ov');
+  if (ov) ov.remove();
+  toast('✅ Registro manual guardado y confirmado','ok');
+  refreshContent();
+};
+
+// ── PIN ───────────────────────────────────────────────────────────
+function openPin(target) {
+  pinTarget = target; pinVal = "";
+  var ov = document.createElement("div"); ov.className="ov"; ov.id="pin-ov";
+  ov.innerHTML = '<div class="sheet"><div class="sheet-handle"></div><div class="sheet-ttl">🔐 Acceso Supervisor</div>'+
+    '<div style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:4px">PIN de acceso</div>'+
+    '<div class="pin-dots">'+[0,1,2,3].map(function(i){ return '<div class="pin-dot" id="pd'+i+'"></div>'; }).join("")+'</div>'+
+    '<div id="pin-err" style="text-align:center;color:var(--red);font-size:12px;min-height:16px"></div>'+
+    '<div class="pin-grid">'+[1,2,3,4,5,6,7,8,9].map(function(n){ return '<button class="pin-btn" data-val="'+n+'">'+n+'</button>'; }).join("")+
+    '<div></div><button class="pin-btn" data-val="0">0</button><button class="pin-btn" data-val="del">⌫</button></div>'+
+    '<button class="btn btn-out" onclick="document.getElementById(\'pin-ov\').remove()">Cancelar</button></div>';
+  document.body.appendChild(ov);
+  ov.querySelectorAll(".pin-btn").forEach(function(b){
+    b.addEventListener("touchstart", function(e){
+      e.preventDefault();
+      onPin(b.dataset.val);
+    }, { passive: false });
+    b.addEventListener("click", function(e){
+      // click ya manejado por touchstart en móvil
+    });
+  });
+}
+function onPin(v) {
+  if (v==="del") pinVal=pinVal.slice(0,-1); else if (pinVal.length<4) pinVal+=v;
+  [0,1,2,3].forEach(function(i){ var d=document.getElementById("pd"+i); if(d) d.className="pin-dot"+(i<pinVal.length?" on":""); });
+  if (pinVal.length===4) {
+    setTimeout(function(){
+      if (pinVal===PIN) {
+        if (pinTarget==="sup") { supAuthed=true; repAuthed=true; horAuthed=true; supSection="main"; }
+        if (pinTarget==="hor") horAuthed=true;
+        if (pinTarget==="rep") repAuthed=true;
+        var ov=document.getElementById("pin-ov"); if(ov) ov.remove();
+        refreshContent();
+      } else {
+        var e=document.getElementById("pin-err"); if(e) e.textContent="PIN incorrecto";
+        pinVal="";
+        [0,1,2,3].forEach(function(i){ var d=document.getElementById("pd"+i); if(d) d.className="pin-dot"; });
+        setTimeout(function(){ if(e) e.textContent=""; },900);
+      }
+    }, 180);
+  }
+}
+
+// ── CAMBIAR PIN (solo accesible si supAuthed===true) ───────────────
+function openChangePinForm() {
+  if (!supAuthed) return; // seguridad extra: nadie sin sesión de supervisor llega acá
+  var ov = document.createElement("div"); ov.className="ov"; ov.id="chpin-ov";
+  ov.innerHTML = '<div class="sheet"><div class="sheet-handle"></div><div class="sheet-ttl">🔑 Cambiar PIN</div>'+
+    '<div class="fld"><label>PIN actual</label><input id="chpin-old" type="password" inputmode="numeric" maxlength="4" placeholder="••••"/></div>'+
+    '<div class="fld"><label>PIN nuevo (4 dígitos)</label><input id="chpin-new" type="password" inputmode="numeric" maxlength="4" placeholder="••••"/></div>'+
+    '<div class="fld"><label>Repetir PIN nuevo</label><input id="chpin-new2" type="password" inputmode="numeric" maxlength="4" placeholder="••••"/></div>'+
+    '<div id="chpin-err" style="text-align:center;color:var(--red);font-size:12px;min-height:16px"></div>'+
+    '<button class="btn btn-blue" style="margin-bottom:8px" onclick="confirmChangePin()">✅ Guardar PIN nuevo</button>'+
+    '<button class="btn btn-out" onclick="document.getElementById(\'chpin-ov\').remove()">Cancelar</button></div>';
+  document.body.appendChild(ov);
+}
+function confirmChangePin() {
+  var e = document.getElementById("chpin-err");
+  var oldV = document.getElementById("chpin-old").value.trim();
+  var newV = document.getElementById("chpin-new").value.trim();
+  var newV2 = document.getElementById("chpin-new2").value.trim();
+  if (oldV !== PIN) { e.textContent = "El PIN actual no es correcto"; return; }
+  if (!/^\d{4}$/.test(newV)) { e.textContent = "El PIN nuevo debe ser de 4 números"; return; }
+  if (newV !== newV2) { e.textContent = "Los PIN nuevos no coinciden"; return; }
+  PIN = newV;
+  localStorage.setItem("ss_pin", PIN);
+  var ov = document.getElementById("chpin-ov"); if (ov) ov.remove();
+  toast("✅ PIN actualizado","ok");
+}
+
+
+function buildSupervisor() {
+  if (!supAuthed) return '<div class="card lock-box"><div class="lock-ico">🔐</div><div class="lock-ttl">ÁREA DE SUPERVISOR</div><div class="lock-sub">Solo el supervisor puede ver y editar todos los registros.</div><button class="btn btn-blue" data-action="openSupPin">🔓 INGRESAR CON PIN</button></div>';
+  if (supSection === "horarios") return buildHorarios();
+  if (supSection === "reportes") return buildReportes();
+  var records = getRecords();
+  var active = records.filter(function(r){ return !r.exit_time; }).length;
+  var filt = getSupFilt();
+  var funs = getFuncionarios();
+  var funSection = "";
+  if (funs.length > 0) {
+    funSection = '<div class="card" style="margin-bottom:12px">' +
+      '<div class="card-ttl">👥 Funcionarios registrados (' + funs.length + ')</div>' +
+      funs.map(function(f) {
+        return '<div style="background:rgba(26,111,212,.07);border:1px solid rgba(26,111,212,.15);border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;">' +
+          '<div class="fun-av" style="width:34px;height:34px;font-size:14px">👤</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div class="fun-name" style="font-size:14px">' + esc(f.name) + '</div>' +
+            '<div class="fun-meta">📄 ' + esc(f.cedula) + (f.phone ? '  📱 ' + esc(f.phone) : '') + '</div>' +
+            '<div style="font-size:10px;color:var(--text2);margin-top:2px">Reg: ' + fmtDT(f.registrado_en) + ' · Último: ' + fmtDT(f.ultimo_acceso) + '</div>' +
+          '</div>' +
+          '<button data-action="delFun" data-param="' + esc(f.id) + '" style="background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);border-radius:7px;padding:5px 9px;color:var(--red);font-size:12px;cursor:pointer;">🗑 Eliminar</button>' +
+        '</div>';
+      }).join("") +
+    '</div>';
+  }
+  // ── Liquidación del supervisor ──────────────────────────────────
+  var supVD = localStorage.getItem('sup_vd')||'';
+  var supVN = localStorage.getItem('sup_vn')||'';
+  var supDesc = localStorage.getItem('sup_desc')||'';
+  var supAdv = localStorage.getItem('sup_adv')||'';
+  var liqSection = '<div class="card" style="margin-bottom:12px">'+
+    '<div class="card-ttl">💰 Liquidación Mensual (mes actual)</div>'+
+    '<div class="fld"><label>☀️ Valor hora diurna</label><input id="sup-vd" type="number" min="0" placeholder="0.00" value="'+supVD+'" oninput="calcSupLiq()"/></div>'+
+    '<div class="fld"><label>🌙 Valor hora nocturna</label><input id="sup-vn" type="number" min="0" placeholder="0.00" value="'+supVN+'" oninput="calcSupLiq()"/></div>'+
+    '<div class="fld"><label>✂️ Descuento / Impuestos (%)</label><input id="sup-desc" type="number" min="0" max="100" placeholder="Ej: 18" value="'+supDesc+'" oninput="calcSupLiq()"/></div>'+
+    '<div class="fld"><label>💸 Vale / Adelanto</label><input id="sup-adv" type="number" min="0" placeholder="0.00" value="'+supAdv+'" oninput="calcSupLiq()"/></div>'+
+    '<div id="sup-liq-result" style="margin-top:10px;padding:10px;background:rgba(26,111,212,.08);border-radius:10px;font-size:13px">Completá los valores para ver el cálculo por funcionario.</div>'+
+  '</div>';
+  return funSection + liqSection +
+    '<div class="sum-grid"><div class="sum-blk"><div class="sum-val">'+records.length+'</div><div class="sum-lbl">Total Registros</div></div><div class="sum-blk"><div class="sum-val" style="color:var(--green)">'+active+'</div><div class="sum-lbl">Activos Ahora</div></div></div>'+
+    '<div class="card"><div class="card-ttl">🔍 Buscar</div><div class="fld" style="margin-bottom:9px"><input id="sup-search" placeholder="Nombre o teléfono..." value="'+esc(supSearch)+'"/></div><div class="fld" style="margin-bottom:0"><label>Filtrar fecha</label><input type="date" id="sup-date" value="'+supDate+'"/></div></div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+      '<div class="sec-hdr" style="margin-bottom:0;border:none">📋 Registros ('+filt.length+')</div>'+
+      '<div style="display:flex;gap:6px;">'+
+        '<button class="btn btn-out btn-sm" onclick="exportarCSV()" title="Exportar CSV">⬇ CSV</button>'+
+        '<button class="btn btn-out btn-sm" onclick="exportarJSON()" title="Backup JSON">💾 Backup</button>'+
+        '<button class="btn btn-out btn-sm" data-action="openChangePin" title="Cambiar PIN">🔑 PIN</button>'+
+        '<button class="btn btn-out btn-sm" onclick="showConfigScreen()" title="Configurar Supabase">☁️ Supabase</button>'+
+      '</div>'+
+    '</div>'+
+    '<button class="btn btn-green btn-sm" style="margin-bottom:10px;width:100%" data-action="newManualRec">📋 + Registro Manual</button>'+
+    '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-family:\'Barlow Condensed\',sans-serif;font-size:12px;color:var(--text2);letter-spacing:1px">PANEL SUPERVISOR</span><span class="ctx-tip" onclick="showCtxTip(&quot;Desde aqui podés gestionar horarios, ver reportes, editar registros y calcular liquidaciones.&quot;,this)">i</span></div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:10px">'+
+      '<button class="btn btn-blue" style="flex:1;font-size:13px" data-action="goSupHorarios">📅 Horarios</button>'+
+      '<button class="btn btn-blue" style="flex:1;font-size:13px" data-action="goSupReportes">📊 Reportes</button>'+
+    '</div>'+
+    '<div id="rec-list">'+buildRecList(filt)+'</div>';
+}
+
+function getSupFilt() {
+  var records = getRecords();
+  return records.filter(function(r){
+    var q = supSearch.toLowerCase();
+    var matchQ = !q || (r.name||"").toLowerCase().includes(q) || (r.phone||"").toLowerCase().includes(q);
+    var matchD = !supDate || (r.entry_time && r.entry_time.startsWith(supDate));
+    return matchQ && matchD;
+  });
+}
+
+function buildRecList(recs) {
+  if (!recs.length) return '<div class="empty"><div class="empty-ico">📂</div><p style="font-size:13px">Sin resultados</p></div>';
+  return recs.slice().reverse().map(function(r){ return recHTML(r,true); }).join("");
+}
+
+window._editRec = function(id) {
+  var records = getRecords();
+  var r = records.find(function(x){ return x.id===id; });
+  if (!r) return;
+  var en = r.entry_time ? new Date(r.entry_time).toISOString().slice(0,16) : "";
+  var ex = r.exit_time  ? new Date(r.exit_time).toISOString().slice(0,16)  : "";
+  var ov = document.createElement("div"); ov.className="ov"; ov.id="edit-ov";
+  ov.innerHTML = '<div class="sheet"><div class="sheet-handle"></div><div class="sheet-ttl">✏️ Editar Registro</div>'+
+    '<div class="fld"><label>Nombre</label><input id="e-name" value="'+esc(r.name)+'"/></div>'+
+    '<div class="fld"><label>Teléfono</label><input id="e-phone" value="'+esc(r.phone)+'"/></div>'+
+    '<div class="fld"><label>Entrada</label><input id="e-entry" type="datetime-local" value="'+en+'"/></div>'+
+    '<div class="fld"><label>Salida</label><input id="e-exit" type="datetime-local" value="'+ex+'"/></div>'+
+    '<div class="fld"><label>Observaciones</label><textarea id="e-obs">'+esc(r.observations||"")+'</textarea></div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn btn-out" style="flex:1" onclick="document.getElementById(\'edit-ov\').remove()">Cancelar</button>'+
+      '<button class="btn btn-blue" style="flex:1" onclick="_saveEdit(\''+esc(id)+'\')">Guardar</button>'+
+    '</div></div>';
+  document.body.appendChild(ov);
+};
+
+window._saveEdit = function(id) {
+  var records = getRecords();
+  var idx = records.findIndex(function(x){ return x.id===id; });
+  if (idx < 0) return;
+  var r = records[idx];
+  var enVal = (document.getElementById("e-entry")||{}).value;
+  var exVal = (document.getElementById("e-exit") ||{}).value;
+  var updated = {
+    id: r.id,
+    name:         (document.getElementById("e-name") ||{}).value || r.name,
+    phone:        (document.getElementById("e-phone")||{}).value || r.phone,
+    observations: (document.getElementById("e-obs")  ||{}).value || "",
+    entry_time:    enVal ? new Date(enVal).toISOString() : r.entry_time,
+    exit_time:     exVal ? new Date(exVal).toISOString() : null,
+    created_at:    r.created_at,
+    edited_by_supervisor: true
+  };
+  records[idx] = updated;
+  cacheSet("asistencias", records);
+  if (isOnline) {
+    supaUpdate("asistencias", id, { name: updated.name, phone: updated.phone, observations: updated.observations, entry_time: updated.entry_time, exit_time: updated.exit_time, edited_by_supervisor: true }).catch(function(){});
+  } else {
+    queueOffline({ type: "update_asistencia", id: id, data: updated });
+  }
+  document.getElementById("edit-ov").remove();
+  toast("✅ Actualizado","ok");
+  refreshContent();
+};
+
+window._delRec = function(id) {
+  if (!confirm("¿Eliminar?")) return;
+  var records = getRecords().filter(function(x){ return x.id!==id; });
+  cacheSet("asistencias", records);
+  if (isOnline) {
+    supaDelete("asistencias", id).catch(function(){});
+  } else {
+    queueOffline({ type: "delete_record", id: id });
+  }
+  toast("🗑 Eliminado","info");
+  refreshContent();
+};
+
+// ── HORARIOS ──────────────────────────────────────────────────────
+function buildHorarios() {
+  var backBtn = supAuthed ? '<button class="btn btn-out btn-sm" style="margin-bottom:10px" data-action="goSupMain">← Volver</button>' : '';
+  if (!horAuthed) return '<div class="card lock-box"><div class="lock-ico">📅</div><div class="lock-ttl">GESTIÓN DE HORARIOS</div><div class="lock-sub">Asigne horarios a cada funcionario. Recibirán notificación automática.</div><button class="btn btn-blue" data-action="openHorPin">🔓 INGRESAR CON PIN</button></div>';
+  var schedules = getSchedules();
+  var html = backBtn + '<div class="card" style="padding:11px 13px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:700;color:var(--blue3)">📅 '+schedules.length+' horario'+(schedules.length!==1?"s":"")+'</div><button class="btn btn-blue btn-sm" data-action="newHorario">+ Nuevo</button></div></div>';
+  if (!schedules.length) return html + '<div class="empty"><div class="empty-ico">📅</div><p style="font-size:13px">Sin horarios creados</p></div>';
+  schedules.forEach(function(s){
+    html += '<div class="sch"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="sch-nm">'+esc(s.name)+'</div><div class="sch-ph">📱 '+esc(s.phone)+'</div></div><div style="display:flex;gap:5px"><button class="btn btn-out btn-sm" style="padding:5px 9px" data-action="editHorario" data-param="'+esc(s.id)+'">✏️</button><button class="btn btn-sm" style="padding:5px 9px;background:rgba(230,57,70,.15);color:var(--red);border:1px solid rgba(230,57,70,.3)" data-action="delHorario" data-param="'+esc(s.id)+'">🗑</button></div></div><div style="font-size:10px;color:var(--text2);margin:4px 0 7px">Publicado: '+fmtDT(s.updated_at)+'</div>';
+    DIAS.forEach(function(d){ var e=s.dias&&s.dias[d]; html+='<div class="sch-row"><span class="sch-dia">'+d+'</span>'+(e&&e.libre?'<span class="sch-off">Descanso</span>':e&&e.inicio?'<span class="sch-times">'+esc(e.inicio)+" – "+esc(e.fin)+'</span>':'<span class="sch-off">—</span>')+'</div>'; });
+    if (s.notas) html += '<div class="rec-obs" style="margin-top:7px">📋 '+esc(s.notas)+'</div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+function openHorForm(sch) {
+  var isEdit = !!sch;
+  var dias = {};
+  DIAS.forEach(function(d){ dias[d] = sch && sch.dias && sch.dias[d] ? sch.dias[d] : {inicio:"",fin:"",libre:false}; });
+  var ov = document.createElement("div"); ov.className="ov"; ov.id="hor-ov";
+  var html = '<div class="sheet"><div class="sheet-handle"></div><div class="sheet-ttl">'+(isEdit?"✏️ Editar":"➕ Nuevo")+" Horario</div>"+
+    '<div class="two-col"><div class="fld"><label>👤 Nombre</label><input id="h-name" value="'+esc(sch?sch.name:"")+'"/></div><div class="fld"><label>📱 Teléfono</label><input id="h-phone" value="'+esc(sch?sch.phone:"")+'\" type="tel"/></div></div>'+
+    '<div class="sec-hdr" style="margin-bottom:10px">Horario por día</div>';
+  DIAS.forEach(function(d){
+    var e = dias[d];
+    html += '<div style="margin-bottom:9px">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:700;min-width:72px">'+d+'</span>'+
+        '<div style="flex:1;position:relative">'+
+          '<input id="h-lugar-'+d+'" value="'+(e.lugar||"")+'\'" placeholder="📍 Lugar" autocomplete="off" oninput="lugarSuggest(this,\''+d+'\')\'" style="border-color:rgba(240,192,64,.4);background:rgba(240,192,64,.08);color:#f0c040;font-size:12px;padding:4px 8px;height:30px;margin:0"/>'+
+          '<div id="h-lugar-sug-'+d+'" style="display:none;background:var(--card);border:1px solid rgba(240,192,64,.3);border-radius:8px;margin-top:2px;z-index:999;position:absolute;width:100%"></div>'+
+        '</div>'+
+        '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;white-space:nowrap">'+
+          '<input type="checkbox" data-libre="'+d+'" '+(e.libre?"checked":"")+'>Libre</label>'+
+      '</div>'+
+      '<div class="two-col" id="time-row-'+d+'" style="display:'+(e.libre?"none":"grid")+';gap:4px">'+
+        '<div class="fld" style="margin-bottom:0"><label style="font-size:10px">Entrada (0-23)</label><input type="number" id="h-ini-'+d+'" min="0" max="23" placeholder="0" value="'+(e.inicio||"")+'\'" style="padding:4px 6px;font-size:13px;text-align:center"/></div>'+
+        '<div class="fld" style="margin-bottom:0"><label style="font-size:10px">Salida (0-24)</label><input type="number" id="h-fin-'+d+'" min="0" max="24" placeholder="0" value="'+(e.fin||"")+'\'" style="padding:4px 6px;font-size:13px;text-align:center"/></div>'+
+      '</div>'+
+      '</div>';
+  });
+  html += '<div class="fld"><label>📝 Notas</label><textarea id="h-notas">'+esc(sch?sch.notas||"":"")+'</textarea></div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn btn-out" style="flex:1" onclick="document.getElementById(\'hor-ov\').remove()">Cancelar</button>'+
+      '<button class="btn btn-green" style="flex:1" onclick="_saveHor(\''+(isEdit?esc(sch.id):"")+'\')">📤 PUBLICAR</button>'+
+    '</div></div>';
+  ov.innerHTML = html;
+  document.body.appendChild(ov);
+  ov.querySelectorAll("[data-libre]").forEach(function(cb){
+    cb.addEventListener("change", function(){ var row=document.getElementById("time-row-"+cb.dataset.libre); if(row) row.style.display=cb.checked?"none":"grid"; });
+  });
+}
+
+window._saveHor = function(id) {
+  var name  = (document.getElementById("h-name") ||{}).value || "";
+  var phone = (document.getElementById("h-phone")||{}).value || "";
+  if (!name.trim() || !phone.trim()) { toast("Complete nombre y teléfono","err"); return; }
+  var dias = {};
+  DIAS.forEach(function(d){
+    var libre = document.querySelector('[data-libre="'+d+'"]'); libre = libre ? libre.checked : false;
+    var ini = (document.getElementById("h-ini-"+d)||{}).value || "";
+    var fin = (document.getElementById("h-fin-"+d)||{}).value || "";
+    var lugar = (document.getElementById("h-lugar-"+d)||{}).value || "";
+    dias[d] = {libre:libre, inicio:ini, fin:fin, lugar:lugar.trim()};
+  });
+  var notas = (document.getElementById("h-notas")||{}).value || "";
+  var data = { id: id || "hor_" + Date.now(), name: name.trim(), phone: phone.trim(), dias: dias, notas: notas.trim(), updated_at: tsNow() };
+  var schedules = getSchedules();
+  var idx = schedules.findIndex(function(s){ return s.id===data.id; });
+  if (idx >= 0) schedules[idx] = data; else schedules.push(data);
+  cacheSet("horarios", schedules);
+
+  if (isOnline) {
+    supaUpsert("horarios", data, "id").catch(function(){ queueOffline({ type: "upsert_horario", data: data }); });
+  } else {
+    queueOffline({ type: "upsert_horario", data: data });
+  }
+
+  // guardar lugares en historial
+  DIAS.forEach(function(d){ if(dias[d] && dias[d].lugar) saveLugar(dias[d].lugar); });
+  document.getElementById("hor-ov").remove();
+  toast("✅ Horario publicado","ok");
+  refreshContent();
+};
+
+// ── REPORTES ──────────────────────────────────────────────────────
+function buildReportes() {
+  var backBtn = supAuthed ? '<button class="btn btn-out btn-sm" style="margin-bottom:10px" data-action="goSupMain">← Volver</button>' : '';
+  if (!repAuthed) return '<div class="card lock-box"><div class="lock-ico">📊</div><div class="lock-ttl">REPORTES</div><div class="lock-sub">Resumen semanal y mensual de horas por funcionario.</div><button class="btn btn-blue" data-action="openRepPin">🔓 VER REPORTES</button></div>';
+  var records = getRecords();
+  var per   = chipState["rep-period"] || "week";
+  var range = per==="week" ? wkRange(repOffset) : moRange(repOffset);
+  var filt  = records.filter(function(r){ var d=new Date(r.entry_time); return d>=range.s && d<=range.e; });
+  var grp   = groupBy(filt);
+  var totH  = filt.reduce(function(a,r){ return a+(hW(r.entry_time,r.exit_time)||0); },0);
+  var withObs = filt.filter(function(r){ return r.observations&&r.observations.trim(); }).length;
+  var perLbl;
+  if (per==="week") { var rr=wkRange(repOffset); perLbl=fmtD(rr.s.toISOString())+" — "+fmtD(rr.e.toISOString()); }
+  else              { var rm=moRange(repOffset);  perLbl=rm.s.toLocaleDateString("es-CO",{month:"long",year:"numeric"}).toUpperCase(); }
+  var html = backBtn + '<div class="card"><div class="card-ttl">📅 Período</div>'+
+    '<div class="chips"><button class="chip '+(per==="week"?"on":"")+'" data-chip="week" data-group="rep-period">Semana</button><button class="chip '+(per==="month"?"on":"")+'" data-chip="month" data-group="rep-period">Mes</button></div>'+
+    '<div style="display:flex;align-items:center;justify-content:space-between">'+
+      '<button class="btn btn-out btn-sm" id="rep-prev">◀</button>'+
+      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11px;font-weight:700;color:var(--blue3)">'+perLbl+'</div>'+
+      '<button class="btn btn-out btn-sm" id="rep-next">▶</button>'+
+    '</div></div>'+
+    '<div class="sum-grid"><div class="sum-blk"><div class="sum-val">'+totH.toFixed(1)+'</div><div class="sum-lbl">Horas Totales</div></div><div class="sum-blk"><div class="sum-val">'+grp.length+'</div><div class="sum-lbl">Funcionarios</div></div><div class="sum-blk"><div class="sum-val">'+filt.length+'</div><div class="sum-lbl">Registros</div></div><div class="sum-blk"><div class="sum-val" style="font-size:20px">'+withObs+'</div><div class="sum-lbl">Con Obs.</div></div></div>';
+  if (!grp.length) return html + '<div class="empty"><div class="empty-ico">📊</div><p style="font-size:13px">Sin datos para este período</p></div>';
+  grp.forEach(function(emp){
+    var h = emp.records.reduce(function(a,r){ return a+(hW(r.entry_time,r.exit_time)||0); },0);
+    var days = new Set(emp.records.map(function(r){ return r.entry_time&&r.entry_time.slice(0,10); })).size;
+    // Horas diurnas (06-22) y nocturnas (22-06)
+    var hDiurna = 0, hNocturna = 0;
+    emp.records.forEach(function(r){
+      if (!r.entry_time || !r.exit_time) return;
+      var en = new Date(r.entry_time), ex = new Date(r.exit_time);
+      var cur = new Date(en);
+      while (cur < ex) {
+        var next = new Date(cur.getTime() + 60000);
+        if (next > ex) next = ex;
+        var hh = cur.getHours();
+        if (hh >= 6 && hh < 22) hDiurna += (next - cur) / 3600000;
+        else hNocturna += (next - cur) / 3600000;
+        cur = next;
+      }
+    });
+    // Horas extra (total > 8h por dia)
+    // Horas extra diurnas y nocturnas por dia
+    var byDayD = {}, byDayN = {};
+    emp.records.forEach(function(r){
+      if (!r.entry_time || !r.exit_time) return;
+      var d = r.entry_time.slice(0,10);
+      var en = new Date(r.entry_time), ex = new Date(r.exit_time);
+      var cur = new Date(en), tD=0, tN=0;
+      while (cur < ex) {
+        var next = new Date(cur.getTime() + 60000); if (next > ex) next = ex;
+        var hh = cur.getHours();
+        if (hh >= 6 && hh < 22) tD += (next-cur)/3600000;
+        else tN += (next-cur)/3600000;
+        cur = next;
+      }
+      byDayD[d] = (byDayD[d]||0) + tD;
+      byDayN[d] = (byDayN[d]||0) + tN;
+    });
+    var extraD=0, extraN=0;
+    Object.keys(byDayD).forEach(function(d){
+      var total = (byDayD[d]||0) + (byDayN[d]||0);
+      if (total > 8) {
+        var exc = total - 8;
+        // proporcionar extras entre diurnas y nocturnas segun proporcion del dia
+        var prop = total > 0 ? (byDayD[d]||0)/total : 1;
+        extraD += exc * prop;
+        extraN += exc * (1 - prop);
+      }
+    });
+    var extra = extraD + extraN;
+    var extraHtml = extra>0 ?
+      '<div style="font-size:11px;color:var(--orange);font-weight:600;margin-top:2px">⚡ '+extra.toFixed(2)+'h extra (☀️ '+extraD.toFixed(2)+'h · 🌙 '+extraN.toFixed(2)+'h)</div>' : '';
+    var hoursDetail = '<div style="font-size:10px;color:var(--text2);margin-top:3px">☀️ '+hDiurna.toFixed(2)+'h diurnas · 🌙 '+hNocturna.toFixed(2)+'h nocturnas</div>';
+    var hoursDetail = '<div style="font-size:10px;color:var(--text2);margin-top:3px">☀️ '+hDiurna.toFixed(2)+'h diurnas · 🌙 '+hNocturna.toFixed(2)+'h nocturnas</div>';
+    html += '<div class="emp-rc"><div class="emp-rh"><div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:700">'+esc(emp.name)+'</div><div style="font-size:11px;color:var(--text2)">📱 '+esc(emp.phone)+'</div></div><div style="text-align:right"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;color:var(--blue3)">'+h.toFixed(2)+'h</div><div style="font-size:10px;color:var(--text2)">'+days+' día'+(days!==1?"s":"")+" · "+emp.records.length+' turno'+(emp.records.length!==1?"s":"")+'</div>'+hoursDetail+extraHtml+'</div></div>'+
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Hrs</th><th>Obs</th></tr></thead><tbody>';
+    emp.records.forEach(function(r){
+      var rh = hW(r.entry_time, r.exit_time);
+      html += '<tr><td>'+fmtD(r.entry_time)+'</td><td>'+fmtT(r.entry_time)+'</td><td>'+(r.exit_time?fmtT(r.exit_time):'<span style="color:var(--green)">Activo</span>')+'</td><td>'+(rh!==null?rh.toFixed(2):"—")+'</td><td>'+(r.observations?"📝":"")+'</td></tr>';
+    });
+    // Historial de liquidación del funcionario (visible al supervisor)
+    var empPhone = normPhone(emp.phone);
+    var empHist = {};
+    try { empHist = JSON.parse(localStorage.getItem('liq_hist_'+empPhone)||'{}'); } catch(e){}
+    var empHistKeys = Object.keys(empHist).sort().reverse().slice(0,6);
+    if (empHistKeys.length) {
+      html += '<div style="margin-top:6px;padding:6px 8px;background:rgba(26,111,212,.06);border-radius:8px">'+
+        '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">💰 Liquidaciones guardadas</div>'+
+        empHistKeys.map(function(k){
+          var parts=k.split('-'); var mIdx=parseInt(parts[1])-1;
+          var nom=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][mIdx]+' '+parts[0];
+          var d=empHist[k];
+          var aguiKey = (mIdx===5||mIdx===11);
+          return '<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)">'+
+            '<span>'+(aguiKey?'🎁 ':'')+''+nom+'</span>'+
+            '<span style="font-weight:700">'+d.neto.toFixed(2)+'</span>'+
+          '</div>';
+        }).join('')+
+      '</div>';
+    }
+    html += '</tbody></table></div></div>';
+  });
+  return html;
+}
+
+// ── EXPORTAR ──────────────────────────────────────────────────────
+function exportarCSV() {
+  var records = getRecords();
+  var rows = [["ID","Nombre","Teléfono","Entrada","Salida","Horas","Observaciones","Editado"]];
+  records.forEach(function(r){
+    var h = hW(r.entry_time, r.exit_time);
+    rows.push([r.id, r.name, r.phone, fmtDT(r.entry_time), r.exit_time?fmtDT(r.exit_time):"", h!==null?h.toFixed(2):"", r.observations||"", r.edited_by_supervisor?"Sí":""]);
+  });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(","); }).join("\n");
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download = "registros_"+new Date().toISOString().slice(0,10)+".csv";
+  a.click();
+  toast("✅ CSV descargado","ok");
+}
+function exportarJSON() {
+  var data = { records: getRecords(), schedules: getSchedules(), funcionarios: getFuncionarios(), exportado: new Date().toISOString(), sistema: "S&S Control de Asistencia v3 — Supabase" };
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
+  a.download = "backup_ss_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  toast("✅ Backup descargado","ok");
+}
+
+// Reloj
+setInterval(function() {
+  var t = new Date();
+  var b = document.getElementById("clk-big"), s = document.getElementById("clk-sm");
+  if (b) b.textContent = t.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  if (s) s.textContent = t.toLocaleDateString("es-CO",{weekday:"short",day:"2-digit",month:"short"}).toUpperCase();
+}, 1000);
+
+// ── ARRANQUE ──────────────────────────────────────────────────────
+render();
+
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+  // Tiene credenciales: cargar, conectar y mostrar pantalla de usuario
+  loadAllData(false);
+  connectRealtime();
+  startPolling();
+  checkFuncionarioRegistrado();
+} else if (SUPABASE_URL_HARD) {
+  // Archivo compartido con credenciales grabadas: conectar directo
+  SUPABASE_URL      = SUPABASE_URL_HARD;
+  SUPABASE_ANON_KEY = SUPABASE_KEY_HARD;
+  loadAllData(false);
+  connectRealtime();
+  startPolling();
+  checkFuncionarioRegistrado();
+} else {
+  // Sin credenciales: mostrar config (admin o primera vez)
+  // Limpiar flag viejo para no saltear la config
+  localStorage.removeItem("ss_cfg_done");
+  showConfigScreen();
+}
+
+// ── SERVICE WORKER (PWA install) ─────────────────────────────────
+if ('serviceWorker' in navigator) {
+  var swCode = `
+self.addEventListener('install', function(e) { self.skipWaiting(); });
+self.addEventListener('activate', function(e) { e.waitUntil(clients.claim()); });
+self.addEventListener('fetch', function(e) {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request).catch(function() { return caches.match(e.request); }));
+  }
+});
+`;
+  var swBlob = new Blob([swCode], { type: 'application/javascript' });
+  var swUrl  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl, { scope: './' }).catch(function(){});
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CENTRO DE AYUDA — Módulo independiente, no afecta nada existente
+     ═══════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Botón flotante ❓ ── */
+#help-fab {
+  position: fixed; bottom: 22px; right: 16px; z-index: 9000;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--blue2); color: #fff;
+  font-size: 20px; border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s;
+}
+#help-fab:active { transform: scale(.92); }
+
+/* ── Overlay del Centro de Ayuda ── */
+#help-center {
+  position: fixed; inset: 0; z-index: 9100;
+  background: rgba(0,0,0,.6); display: none;
+  align-items: flex-end; justify-content: center;
+}
+#help-center.open { display: flex; }
+#help-panel {
+  background: var(--bg2); border-radius: 18px 18px 0 0;
+  width: 100%; max-height: 92vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -4px 32px rgba(0,0,0,.5);
+}
+#help-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#help-header h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 800; color: var(--blue3);
+  margin: 0; letter-spacing: .5px;
+}
+#help-close {
+  background: none; border: none; color: var(--text2);
+  font-size: 22px; cursor: pointer; padding: 2px 6px;
+}
+#help-search-wrap {
+  padding: 10px 14px 8px; flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+#help-search {
+  width: 100%; box-sizing: border-box;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px;
+  color: var(--text); font-size: 13px;
+  outline: none;
+}
+#help-body { overflow-y: auto; flex: 1; padding: 12px 14px 24px; }
+
+/* ── Categorías ── */
+.help-cat-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 9px; margin-bottom: 16px;
+}
+.help-cat-btn {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 10px;
+  text-align: center; cursor: pointer;
+  font-size: 12px; font-weight: 700; color: var(--text);
+  transition: background .15s;
+}
+.help-cat-btn:active { background: var(--blue-dim); }
+.help-cat-btn .hc-ico { font-size: 26px; display: block; margin-bottom: 5px; }
+
+/* ── Artículos ── */
+.help-article { display: none; }
+.help-article.active { display: block; }
+.help-back {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; color: var(--blue3);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  margin-bottom: 12px; padding: 0;
+}
+.help-article h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px; font-weight: 800; color: var(--blue3);
+  margin: 0 0 10px;
+}
+.help-article h4 {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin: 14px 0 5px;
+}
+.help-article p, .help-article li {
+  font-size: 13px; color: var(--text2); line-height: 1.55;
+}
+.help-article ul { padding-left: 16px; margin: 4px 0; }
+.help-step {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 10px;
+}
+.help-step-num {
+  min-width: 26px; height: 26px; border-radius: 50%;
+  background: var(--blue2); color: #fff;
+  font-size: 12px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.help-step-txt { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* ── Ilustración SVG ── */
+.help-ilu {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+  margin: 10px 0; text-align: center;
+}
+.help-ilu svg { max-width: 100%; }
+
+/* ── FAQ ── */
+.faq-item {
+  border: 1px solid var(--border); border-radius: 10px;
+  margin-bottom: 8px; overflow: hidden;
+}
+.faq-q {
+  padding: 11px 13px; cursor: pointer;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--card);
+}
+.faq-q:active { background: var(--blue-dim); }
+.faq-a {
+  display: none; padding: 10px 13px;
+  font-size: 13px; color: var(--text2); line-height: 1.55;
+  border-top: 1px solid var(--border);
+}
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-ico { transform: rotate(180deg); }
+.faq-ico { transition: transform .2s; }
+
+/* ── Tip contextual ── */
+.ctx-tip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: rgba(26,111,212,.25); color: var(--blue3);
+  font-size: 10px; font-weight: 800; cursor: pointer;
+  margin-left: 4px; vertical-align: middle;
+  border: 1px solid rgba(26,111,212,.4);
+}
+.ctx-tip-popup {
+  position: fixed; z-index: 9500;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 13px;
+  font-size: 12px; color: var(--text2); line-height: 1.5;
+  max-width: 260px; box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+
+/* ── Búsqueda resultados ── */
+.help-search-result {
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+  cursor: pointer; border-radius: 8px;
+}
+.help-search-result:active { background: var(--blue-dim); }
+.help-search-result .hsr-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.help-search-result .hsr-preview { font-size: 11px; color: var(--text2); margin-top: 2px; }
+</style>
+
+<!-- Botón flotante -->
+<button id="help-fab" onclick="helpOpen()" title="Ayuda">❓</button>
+
+<!-- Panel Centro de Ayuda -->
+<div id="help-center">
+  <div id="help-panel">
+    <div id="help-header">
+      <h2>❓ Centro de Ayuda</h2>
+      <button id="help-close" onclick="helpClose()">✕</button>
+    </div>
+    <div id="help-search-wrap">
+      <input id="help-search" type="search" placeholder="🔍 Buscar en la ayuda..." oninput="helpSearch(this.value)"/>
+    </div>
+    <div id="help-body">
+
+      <!-- ── HOME: categorías ── -->
+      <div id="help-home">
+        <p style="font-size:12px;color:var(--text2);margin:0 0 12px">Seleccioná un tema para ver la ayuda.</p>
+        <div class="help-cat-grid">
+          <div class="help-cat-btn" onclick="helpShow('art-registro')"><span class="hc-ico">🕐</span>Registro</div>
+          <div class="help-cat-btn" onclick="helpShow('art-supervisor')"><span class="hc-ico">🔐</span>Supervisor</div>
+          <div class="help-cat-btn" onclick="helpShow('art-horarios')"><span class="hc-ico">📅</span>Horarios</div>
+          <div class="help-cat-btn" onclick="helpShow('art-sync')"><span class="hc-ico">🔄</span>Sincronización</div>
+          <div class="help-cat-btn" onclick="helpShow('art-liq')"><span class="hc-ico">💰</span>Liquidación</div>
+          <div class="help-cat-btn" onclick="helpShow('art-faq')"><span class="hc-ico">❓</span>Preguntas frecuentes</div>
+          <div class="help-cat-btn" onclick="helpShow('art-prob')"><span class="hc-ico">🛠</span>Solución de problemas</div>
+          <div class="help-cat-btn" onclick="helpShow('art-tecnico')"><span class="hc-ico">⚙️</span>Manual técnico</div>
+        </div>
+      </div>
+
+      <!-- ── ARTÍCULO: Registro ── -->
+      <div class="help-article" id="art-registro">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>🕐 Cómo registrar entrada y salida</h3>
+        <div class="help-ilu">
+          <svg width="260" height="90" viewBox="0 0 260 90">
+            <rect width="260" height="90" rx="10" fill="#0b1e3d"/>
+            <rect x="10" y="10" width="240" height="30" rx="6" fill="#1a6fd4" opacity=".2"/>
+            <text x="130" y="30" text-anchor="middle" fill="#1a6fd4" font-size="13" font-weight="bold">📱 Teléfono</text>
+            <rect x="10" y="50" width="240" height="30" rx="6" fill="#2dc653" opacity=".15"/>
+            <text x="130" y="70" text-anchor="middle" fill="#2dc653" font-size="13" font-weight="bold">🟢 REGISTRAR ENTRADA</text>
+          </svg>
+        </div>
+        <div class="help-step"><div class="help-step-num">1</div><div class="help-step-txt">Ingresá a la pestaña <b>Registro</b>.</div></div>
+        <div class="help-step"><div class="help-step-num">2</div><div class="help-step-txt">Seleccioná tu nombre de la lista o ingresá tu teléfono y nombre.</div></div>
+        <div class="help-step"><div class="help-step-num">3</div><div class="help-step-txt">Tocá <b>🟢 REGISTRAR ENTRADA</b> al comenzar tu turno.</div></div>
+        <div class="help-step"><div class="help-step-num">4</div><div class="help-step-txt">Al terminar, tocá <b>🔴 REGISTRAR SALIDA</b>.</div></div>
+        <h4>Observaciones</h4>
+        <p>Podés escribir en el campo <b>Observaciones</b> el lugar donde trabajaste o cualquier novedad del turno. El supervisor puede verlo.</p>
+        <h4>Sin internet</h4>
+        <p>El sistema guarda los registros localmente y los sincroniza automáticamente cuando volvés a conectarte.</p>
+      </div>
+
+      <!-- ── ARTÍCULO: Supervisor ── -->
+      <div class="help-article" id="art-supervisor">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>🔐 Área de Supervisor</h3>
+        <div class="help-ilu">
+          <svg width="260" height="90" viewBox="0 0 260 90">
+            <rect width="260" height="90" rx="10" fill="#0b1e3d"/>
+            <text x="130" y="35" text-anchor="middle" fill="#f5a623" font-size="28">🔐</text>
+            <text x="130" y="68" text-anchor="middle" fill="#1a6fd4" font-size="12">Ingresá tu PIN de supervisor</text>
+          </svg>
+        </div>
+        <div class="help-step"><div class="help-step-num">1</div><div class="help-step-txt">Tocá la pestaña <b>Supervisor</b>.</div></div>
+        <div class="help-step"><div class="help-step-num">2</div><div class="help-step-txt">Ingresá el PIN de supervisor.</div></div>
+        <div class="help-step"><div class="help-step-num">3</div><div class="help-step-txt">Accedés al panel completo con todos los registros, horarios y reportes.</div></div>
+        <h4>Cambiar PIN</h4>
+        <p>Dentro del panel de supervisor, buscá la opción <b>Cambiar PIN</b>. Ingresá el PIN actual y luego el nuevo.</p>
+        <h4>Horarios y Reportes</h4>
+        <p>Desde el panel del supervisor podés acceder a <b>📅 Horarios</b> para asignar turnos, y a <b>📊 Reportes</b> para ver horas trabajadas y liquidaciones.</p>
+      </div>
+
+      <!-- ── ARTÍCULO: Horarios ── -->
+      <div class="help-article" id="art-horarios">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>📅 Gestión de Horarios</h3>
+        <div class="help-ilu">
+          <svg width="260" height="100" viewBox="0 0 260 100">
+            <rect width="260" height="100" rx="10" fill="#0b1e3d"/>
+            <rect x="10" y="12" width="240" height="18" rx="4" fill="#1a3a6d"/>
+            <text x="20" y="25" fill="#f0c040" font-size="11" font-weight="bold">📍 Sede Norte</text>
+            <text x="180" y="25" fill="#888" font-size="10">Libre</text>
+            <text x="20" y="48" fill="#fff" font-size="11" font-weight="bold">Lunes</text>
+            <text x="80" y="48" fill="#1a6fd4" font-size="11">06:00 – 14:00</text>
+            <text x="20" y="68" fill="#fff" font-size="11" font-weight="bold">Martes</text>
+            <text x="80" y="68" fill="#1a6fd4" font-size="11">22:45 – 06:00</text>
+            <text x="20" y="88" fill="#fff" font-size="11" font-weight="bold">Miércoles</text>
+            <text x="80" y="88" fill="#888" font-size="11">—</text>
+          </svg>
+        </div>
+        <div class="help-step"><div class="help-step-num">1</div><div class="help-step-txt">Ingresá como <b>Supervisor</b>.</div></div>
+        <div class="help-step"><div class="help-step-num">2</div><div class="help-step-txt">Tocá <b>📅 Horarios</b>.</div></div>
+        <div class="help-step"><div class="help-step-num">3</div><div class="help-step-txt">Tocá <b>+ Nuevo</b> para crear un horario o el ícono de edición para modificar uno existente.</div></div>
+        <div class="help-step"><div class="help-step-num">4</div><div class="help-step-txt">Completá el teléfono del funcionario, los días, horarios y el lugar de trabajo en amarillo.</div></div>
+        <div class="help-step"><div class="help-step-num">5</div><div class="help-step-txt">Tocá <b>📤 PUBLICAR</b> — el funcionario lo verá en su pantalla automáticamente.</div></div>
+        <h4>Lugar de trabajo</h4>
+        <p>El campo amarillo 📍 al lado de cada día guarda el lugar con autocompletado. Si el funcionario trabaja en más de un lugar, escribilos separados por <b>/</b>.</p>
+      </div>
+
+      <!-- ── ARTÍCULO: Sincronización ── -->
+      <div class="help-article" id="art-sync">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>🔄 Sincronización</h3>
+        <div class="help-ilu">
+          <svg width="260" height="80" viewBox="0 0 260 80">
+            <rect width="260" height="80" rx="10" fill="#0b1e3d"/>
+            <circle cx="70" cy="40" r="18" fill="none" stroke="#2dc653" stroke-width="2"/>
+            <text x="70" y="45" text-anchor="middle" fill="#2dc653" font-size="18">📱</text>
+            <line x1="95" y1="40" x2="165" y2="40" stroke="#1a6fd4" stroke-width="2" stroke-dasharray="6,3"/>
+            <circle cx="190" cy="40" r="18" fill="none" stroke="#1a6fd4" stroke-width="2"/>
+            <text x="190" y="45" text-anchor="middle" fill="#1a6fd4" font-size="18">☁️</text>
+          </svg>
+        </div>
+        <p>El sistema sincroniza automáticamente con <b>Supabase</b> cada vez que hay conexión a internet.</p>
+        <h4>Indicadores</h4>
+        <ul>
+          <li><b style="color:#2dc653">● Verde</b> — Sincronizado correctamente</li>
+          <li><b style="color:#f5a623">● Naranja</b> — Sincronizando...</li>
+          <li><b style="color:#e63946">● Rojo</b> — Sin conexión, modo offline</li>
+        </ul>
+        <h4>Sincronización manual</h4>
+        <p>Tocá el ícono 🔄 en la barra de sincronización para forzar una sincronización manual.</p>
+        <h4>Modo offline</h4>
+        <p>Si no tenés internet, el sistema guarda todos los registros localmente. Cuando volvés a conectarte, se sincronizan automáticamente.</p>
+        <h4>Cambié de teléfono</h4>
+        <p>Ingresá las credenciales de Supabase nuevamente en la pantalla de configuración. Los datos están en la nube y se recuperan solos.</p>
+      </div>
+
+      <!-- ── ARTÍCULO: Liquidación ── -->
+      <div class="help-article" id="art-liq">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>💰 Liquidación y Aguinaldo</h3>
+        <div class="help-ilu">
+          <svg width="260" height="90" viewBox="0 0 260 90">
+            <rect width="260" height="90" rx="10" fill="#0b1e3d"/>
+            <text x="20" y="28" fill="#fff" font-size="11">☀️ 7.2h × 180</text><text x="200" y="28" fill="#fff" font-size="11" font-weight="bold">1296</text>
+            <text x="20" y="46" fill="#fff" font-size="11">🌙 7.2h × 216</text><text x="200" y="46" fill="#fff" font-size="11" font-weight="bold">1555</text>
+            <line x1="15" y1="54" x2="245" y2="54" stroke="#1a3a6d" stroke-width="1"/>
+            <text x="20" y="68" fill="#1a6fd4" font-size="12" font-weight="bold">✅ Neto</text><text x="200" y="68" fill="#1a6fd4" font-size="12" font-weight="bold">2295</text>
+            <text x="20" y="84" fill="#f0c040" font-size="11">🎁 Aguinaldo Jun</text><text x="200" y="84" fill="#f0c040" font-size="11" font-weight="bold">191</text>
+          </svg>
+        </div>
+        <h4>Cómo funciona</h4>
+        <div class="help-step"><div class="help-step-num">1</div><div class="help-step-txt">Abrí <b>💰 Mi Liquidación</b> tocando el título para desplegarlo.</div></div>
+        <div class="help-step"><div class="help-step-num">2</div><div class="help-step-txt">Ingresá el valor de la hora diurna y nocturna.</div></div>
+        <div class="help-step"><div class="help-step-num">3</div><div class="help-step-txt">Ingresá el porcentaje de descuento (impuestos, ej: 18.51%).</div></div>
+        <div class="help-step"><div class="help-step-num">4</div><div class="help-step-txt">El sistema calcula automáticamente y guarda ese mes en el historial.</div></div>
+        <h4>Aguinaldo (Ley 12.840 Uruguay)</h4>
+        <p>En junio y diciembre el sistema calcula el aguinaldo automáticamente: suma de lo ganado en el semestre ÷ 12.</p>
+        <h4>Horas nocturnas</h4>
+        <p>Son las horas trabajadas entre las <b>22:00 y las 06:00</b>. Se cuentan separado de las diurnas.</p>
+      </div>
+
+      <!-- ── ARTÍCULO: FAQ ── -->
+      <div class="help-article" id="art-faq">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>❓ Preguntas Frecuentes</h3>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">No puedo registrar entrada <span class="faq-ico">▼</span></div>
+          <div class="faq-a">Verificá que tenés internet o que el modo offline esté activo. Asegurate de ingresar tu teléfono y nombre correctamente. Si el problema persiste, cerrá y volvé a abrir la app.</div>
+        </div>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">No sincroniza <span class="faq-ico">▼</span></div>
+          <div class="faq-a">Verificá tu conexión a internet. Tocá el ícono 🔄 para forzar la sincronización. Si sigue sin funcionar, revisá que las credenciales de Supabase sean correctas en la configuración.</div>
+        </div>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">No tengo internet <span class="faq-ico">▼</span></div>
+          <div class="faq-a">El sistema funciona sin internet. Los registros se guardan localmente y se sincronizan automáticamente cuando volvés a conectarte. El indicador mostrará ● Rojo mientras estés offline.</div>
+        </div>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">Olvidé el PIN de supervisor <span class="faq-ico">▼</span></div>
+          <div class="faq-a">El PIN está guardado en la base de datos de Supabase. Contactá al administrador del sistema para que lo recupere desde la tabla de configuración.</div>
+        </div>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">No aparece mi horario <span class="faq-ico">▼</span></div>
+          <div class="faq-a">El supervisor debe haber publicado tu horario. Verificá que tu número de teléfono registrado coincida exactamente con el que usó el supervisor. Tocá 🔄 para sincronizar.</div>
+        </div>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">Cambié de teléfono <span class="faq-ico">▼</span></div>
+          <div class="faq-a">Los datos están guardados en Supabase (la nube). Instalá la app en el nuevo teléfono, ingresá las mismas credenciales de Supabase y todos los datos se recuperan automáticamente.</div>
+        </div>
+        <div class="faq-item" onclick="faqToggle(this)">
+          <div class="faq-q">El número marcó varias veces al ingresar el PIN <span class="faq-ico">▼</span></div>
+          <div class="faq-a">Este problema fue corregido. Asegurate de tener la versión más reciente de la app. Si persiste, intentá con un toque más suave y breve.</div>
+        </div>
+      </div>
+
+      <!-- ── ARTÍCULO: Solución de problemas ── -->
+      <div class="help-article" id="art-prob">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>🛠 Solución de Problemas</h3>
+        <h4>Pantalla en blanco al abrir</h4>
+        <ul><li>Cerrá completamente la app y volvé a abrirla.</li><li>Verificá tu conexión a internet.</li><li>Limpiá el caché del navegador.</li></ul>
+        <h4>Los registros no aparecen</h4>
+        <ul><li>Tocá 🔄 para sincronizar manualmente.</li><li>Verificá que las credenciales de Supabase sean correctas.</li><li>Comprobá que la tabla <b>asistencias</b> existe en tu proyecto de Supabase.</li></ul>
+        <h4>No se guarda el horario</h4>
+        <ul><li>Verificá que ingresaste el teléfono del funcionario correctamente.</li><li>Comprobá que tenés conexión a internet al publicar.</li></ul>
+        <h4>La liquidación muestra 0.00</h4>
+        <ul><li>Asegurate de tener registros con entrada <b>y</b> salida en el mes actual.</li><li>Verificá que ingresaste el valor de hora diurna y nocturna.</li></ul>
+        <h4>La app no se instala en el escritorio</h4>
+        <ul><li>Abrí la app desde el link de GitHub Pages (no desde Descargas).</li><li>Usá Chrome. Tocá ⋮ → Instalar aplicación.</li></ul>
+      </div>
+
+      <!-- ── ARTÍCULO: Manual Técnico ── -->
+      <div class="help-article" id="art-tecnico">
+        <button class="help-back" onclick="helpHome()">← Volver</button>
+        <h3>⚙️ Manual Técnico</h3>
+        <h4>Arquitectura</h4>
+        <p>Aplicación de archivo único (<b>index.html</b>) desplegada en <b>GitHub Pages</b>. Sin servidor propio. Backend en <b>Supabase</b> (PostgreSQL + Realtime + REST API).</p>
+        <h4>Base de datos Supabase</h4>
+        <ul>
+          <li><b>asistencias</b> — registros de entrada/salida</li>
+          <li><b>horarios</b> — turnos asignados por supervisor</li>
+          <li><b>funcionarios</b> — datos del personal</li>
+        </ul>
+        <h4>Sincronización</h4>
+        <p>WebSocket Realtime (Supabase) + polling cada 30 segundos como respaldo. Los cambios se sincronizan en tiempo real entre dispositivos.</p>
+        <h4>Modo offline</h4>
+        <p>localStorage como caché local. Cola de operaciones pendientes que se ejecutan al recuperar conexión.</p>
+        <h4>PWA</h4>
+        <p>Service Worker registrado desde Blob URL. Manifest embebido en base64. Instalable en Android e iOS.</p>
+        <h4>Futuras integraciones</h4>
+        <p>El sistema está preparado para integrar:</p>
+        <ul>
+          <li>API REST / ERP / SAP / Odoo</li>
+          <li>Lectores biométricos, huella digital, reconocimiento facial</li>
+          <li>RFID, QR, código de barras</li>
+          <li>Control de acceso y molinetes</li>
+          <li>Exportación automática a Excel, PDF, Email, WhatsApp</li>
+        </ul>
+      </div>
+
+      <!-- ── Resultados de búsqueda ── -->
+      <div id="help-search-results" style="display:none"></div>
+
+      <div style="text-align:center;padding:12px;border-top:1px solid var(--border);flex-shrink:0">
+    <div style="font-size:11px;color:var(--text2)">
+      <span style="color:#4da3ff;font-weight:800">AttendX</span> · Desarrollado por <b>Pablo López</b>
+    </div>
+    <div style="font-size:10px;color:var(--text2);opacity:.5;margin-top:2px">v3.0 · S&S Control de Asistencia</div>
+  </div>
+</div><!-- /help-body -->
+  </div><!-- /help-panel -->
+</div><!-- /help-center -->
+
+<script>
+// ── Centro de Ayuda — funciones independientes ──────────────────────
+function helpOpen()  { document.getElementById('help-center').classList.add('open'); }
+function helpClose() {
+  document.getElementById('help-center').classList.remove('open');
+  helpHome();
+  document.getElementById('help-search').value='';
+  document.getElementById('help-search-results').style.display='none';
+}
+function helpHome() {
+  document.getElementById('help-home').style.display='block';
+  document.querySelectorAll('.help-article').forEach(function(a){ a.classList.remove('active'); });
+  document.getElementById('help-search-results').style.display='none';
+}
+function helpShow(id) {
+  document.getElementById('help-home').style.display='none';
+  document.querySelectorAll('.help-article').forEach(function(a){ a.classList.remove('active'); });
+  var el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+// ── Buscador ────────────────────────────────────────────────────────
+var HELP_INDEX = [
+  {id:'art-registro',  title:'Registro de entrada y salida', tags:'entrada salida turno teléfono registrar'},
+  {id:'art-supervisor',title:'Área de Supervisor',           tags:'supervisor pin clave acceso horarios reportes'},
+  {id:'art-horarios',  title:'Gestión de Horarios',          tags:'horario turno día lugar publicar supervisor'},
+  {id:'art-sync',      title:'Sincronización',               tags:'sincronizar internet offline supabase nube verde rojo'},
+  {id:'art-liq',       title:'Liquidación y Aguinaldo',      tags:'liquidación pago sueldo aguinaldo horas nocturnas diurnas'},
+  {id:'art-faq',       title:'Preguntas Frecuentes',         tags:'faq pregunta problema pin olvidé teléfono horario'},
+  {id:'art-prob',      title:'Solución de Problemas',        tags:'error problema pantalla blanca no sincroniza'},
+  {id:'art-tecnico',   title:'Manual Técnico',               tags:'arquitectura supabase base datos pwa offline integración'},
+];
+function helpSearch(val) {
+  var res = document.getElementById('help-search-results');
+  var home = document.getElementById('help-home');
+  if (!val.trim()) {
+    res.style.display='none'; home.style.display='block';
+    document.querySelectorAll('.help-article').forEach(function(a){ a.classList.remove('active'); });
+    return;
+  }
+  home.style.display='none';
+  document.querySelectorAll('.help-article').forEach(function(a){ a.classList.remove('active'); });
+  var q = val.toLowerCase();
+  var matches = HELP_INDEX.filter(function(x){ return (x.title+' '+x.tags).toLowerCase().includes(q); });
+  if (!matches.length) {
+    res.innerHTML='<p style="font-size:13px;color:var(--text2);padding:10px">Sin resultados para "'+val+'".</p>';
+  } else {
+    res.innerHTML = matches.map(function(m){
+      return '<div class="help-search-result" onclick="helpShow(\"'+m.id+'\")">'+
+        '<div class="hsr-title">'+m.title+'</div>'+
+      '</div>';
+    }).join('');
+  }
+  res.style.display='block';
+}
+
+// ── FAQ toggle ──────────────────────────────────────────────────────
+function faqToggle(el) { el.classList.toggle('open'); }
+
+// ── Tips contextuales ───────────────────────────────────────────────
+function showCtxTip(txt, el) {
+  var existing = document.getElementById('ctx-tip-popup');
+  if (existing) existing.remove();
+  var rect = el.getBoundingClientRect();
+  var pop = document.createElement('div');
+  pop.id='ctx-tip-popup'; pop.className='ctx-tip-popup';
+  pop.textContent=txt;
+  pop.style.top=(rect.bottom+6)+'px';
+  pop.style.left=Math.max(8,rect.left-80)+'px';
+  document.body.appendChild(pop);
+  setTimeout(function(){ pop.remove(); }, 3500);
+}
+document.addEventListener('click', function(e){
+  if(!e.target.classList.contains('ctx-tip')){
+    var p=document.getElementById('ctx-tip-popup'); if(p) p.remove();
+  }
+});
+
+// ── Cerrar al tocar fuera del panel ────────────────────────────────
+document.getElementById('help-center').addEventListener('click', function(e){
+  if(e.target===this) helpClose();
+});
+</script>
+
+
+<script>
+// ── TUTORIAL INICIAL — solo aparece la primera vez ──────────────────
+(function(){
+  if (localStorage.getItem('tutorial_done')) return;
+  var steps = [
+    { ico:'👋', title:'¡Bienvenido a AttendX!', txt:'<b>AttendX</b> es el sistema de control de asistencia de S&S. Desarrollado por <b>Pablo López</b>. Te guiamos en los primeros pasos.' },
+    { ico:'🕐', title:'Registro', txt:'En la pestaña <b>Registro</b> marcás tu entrada y salida de cada turno.' },
+    { ico:'📱', title:'Tu teléfono', txt:'Ingresá tu número de teléfono para identificarte. El sistema te reconoce automáticamente.' },
+    { ico:'🟢', title:'Registrar Entrada', txt:'Al comenzar tu turno tocá <b>REGISTRAR ENTRADA</b>. Al terminar tocá <b>REGISTRAR SALIDA</b>.' },
+    { ico:'📅', title:'Tu Horario', txt:'En la sección <b>Mi Horario</b> ves los días y horarios que te asignó el supervisor.' },
+    { ico:'💰', title:'Tu Liquidación', txt:'En <b>Mi Liquidación</b> podés calcular cuánto vas a cobrar según tus horas trabajadas.' },
+    { ico:'🔄', title:'Sincronización', txt:'El sistema se sincroniza automáticamente. Si no tenés internet, guarda los datos y los envía después.' },
+    { ico:'❓', title:'¿Necesitás ayuda?', txt:'Tocá el botón <b>❓</b> en cualquier momento para abrir el Centro de Ayuda.' },
+  ];
+  var cur = 0;
+  function renderTutorial() {
+    var existing = document.getElementById('tutorial-ov');
+    if (existing) existing.remove();
+    var s = steps[cur];
+    var ov = document.createElement('div');
+    ov.id = 'tutorial-ov';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:9200;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px';
+    ov.innerHTML =
+      '<div style="background:var(--bg2);border-radius:18px;padding:28px 22px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.5)">'+
+        '<div style="font-size:52px;margin-bottom:12px">'+s.ico+'</div>'+
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;color:var(--blue3);margin-bottom:10px">'+s.title+'</div>'+
+        '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px">'+s.txt+'</div>'+
+        '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:18px">'+
+          steps.map(function(_,i){ return '<div style="width:8px;height:8px;border-radius:50%;background:'+(i===cur?'var(--blue3)':'var(--border)')+'"></div>'; }).join('')+
+        '</div>'+
+        '<div style="display:flex;gap:10px">'+
+          (cur>0?'<button onclick="tutPrev()" style="flex:1;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer">← Anterior</button>':'')+
+          '<button onclick="tutNext()" style="flex:2;padding:10px;background:var(--blue2);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">'+(cur<steps.length-1?'Siguiente →':'✅ ¡Listo!'+'</button>')+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(ov);
+  }
+  window.tutNext = function(){
+    if (cur < steps.length-1) { cur++; renderTutorial(); }
+    else { document.getElementById('tutorial-ov').remove(); localStorage.setItem('tutorial_done','1'); }
+  };
+  window.tutPrev = function(){ if(cur>0){ cur--; renderTutorial(); } };
+  // Mostrar después de que cargue la app
+  setTimeout(renderTutorial, 1800);
+})();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SPLASH SCREEN — AttendX by Pablo López
+     ═══════════════════════════════════════════════════════ -->
+<style>
+#attendx-splash {
+  position: fixed; inset: 0; z-index: 99999;
+  background: linear-gradient(145deg, #07142a 0%, #0b1e3d 60%, #0d2850 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity .5s ease;
+}
+#attendx-splash.fade-out { opacity: 0; pointer-events: none; }
+.ax-logo-ring {
+  width: 90px; height: 90px; border-radius: 22px;
+  background: linear-gradient(135deg, #1a6fd4 0%, #0d4fa0 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 3px rgba(26,111,212,.3), 0 8px 32px rgba(0,0,0,.5);
+  margin-bottom: 18px;
+  animation: ax-pulse 2s infinite;
+}
+@keyframes ax-pulse {
+  0%,100%{ box-shadow: 0 0 0 3px rgba(26,111,212,.3),0 8px 32px rgba(0,0,0,.5); }
+  50%{ box-shadow: 0 0 0 8px rgba(26,111,212,.15),0 8px 32px rgba(0,0,0,.5); }
+}
+.ax-logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px; font-weight: 900; color: #fff;
+  letter-spacing: 2px;
+}
+.ax-logo-text span { color: #4da3ff; }
+.ax-tagline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; color: rgba(255,255,255,.5);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.ax-sub {
+  font-size: 11px; color: rgba(255,255,255,.3);
+  letter-spacing: 1px;
+}
+.ax-bar-wrap {
+  margin-top: 40px; width: 120px; height: 3px;
+  background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden;
+}
+.ax-bar {
+  height: 100%; width: 0%; background: #1a6fd4;
+  border-radius: 2px;
+  animation: ax-load 1.4s ease forwards;
+}
+@keyframes ax-load { to { width: 100%; } }
+.ax-credit {
+  position: absolute; bottom: 24px;
+  font-size: 11px; color: rgba(255,255,255,.25);
+  letter-spacing: .5px;
+}
+</style>
+
+<div id="attendx-splash">
+  <div class="ax-logo-ring">
+    <svg width="52" height="52" viewBox="0 0 52 52">
+      <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2"/>
+      <path d="M26 8 L30 20 L42 20 L32 28 L36 40 L26 32 L16 40 L20 28 L10 20 L22 20 Z" fill="white" opacity=".9"/>
+      <circle cx="26" cy="26" r="6" fill="#4da3ff"/>
+    </svg>
+  </div>
+  <div class="ax-logo-text">Attend<span>X</span></div>
+  <div class="ax-tagline">Control de Asistencia</div>
+  <div class="ax-sub">Powered by S&S Seguridad</div>
+  <div class="ax-bar-wrap"><div class="ax-bar"></div></div>
+  <div class="ax-credit">Desarrollado por Pablo López · v3.0</div>
+</div>
+
+<script>
+// Ocultar splash después de 2.2s
+setTimeout(function(){
+  var s = document.getElementById('attendx-splash');
+  if (s) {
+    s.classList.add('fade-out');
+    setTimeout(function(){ s.remove(); }, 500);
+  }
+}, 2200);
+</script>
+
+</body>
+</html>
